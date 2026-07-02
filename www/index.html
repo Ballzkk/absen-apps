@@ -1,19 +1,90 @@
 <!DOCTYPE html>
-<html>
+<html lang="id">
 <head>
   <meta charset="UTF-8">
-  <title>Test</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pengingat Absen</title>
+
+  <link rel="stylesheet" href="style.css">
+
+  <link
+    href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+    rel="stylesheet"
+  >
 </head>
-<body style="
-background:red;
-color:white;
-display:flex;
-justify-content:center;
-align-items:center;
-height:100vh;
-font-size:35px;
-font-family:sans-serif;
-">
-TEST MERAH 🚀
+<body>
+
+<div class="container">
+
+  <div class="header-card">
+    <p class="greeting">👋 Halo, Iqbal</p>
+    <h1 id="tanggal"></h1>
+
+    <div class="ot-box">
+      <small>OT Hari Ini</small>
+      <h2 id="ot">0 Jam</h2>
+    </div>
+  </div>
+
+  <div class="info-card">
+
+    <div class="info-item">
+      <div>
+        <span>🕖 Jam Masuk</span>
+        <h3 id="masuk">-</h3>
+      </div>
+    </div>
+
+    <div class="info-item">
+      <div>
+        <span>🌆 Jam Pulang</span>
+        <h3 id="pulang">-</h3>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="notif-card">
+    <p>⏰ Notifikasi Berikutnya</p>
+
+    <h2 id="notif">-</h2>
+    
+    <div class="countdown-card">
+  <p>⏳ Waktu Menuju Reminder</p>
+  <h2 id="countdown">--:--:--</h2>
+</div>
+
+    <small id="pesanNotif">
+      Tidak ada notifikasi hari ini
+    </small>
+    
+    <div class="test-card">
+  <button id="testNotifBtn">
+    🔔 Tes Notifikasi
+  </button>
+</div>
+  </div>
+
+  <div class="menu-card">
+    <div class="menu-item">
+      📅
+      <span>Jadwal OT</span>
+    </div>
+
+    <div class="menu-item">
+      🔔
+      <span>Riwayat</span>
+    </div>
+
+    <div class="menu-item">
+      ⚙️
+      <span>Pengaturan</span>
+    </div>
+  </div>
+
+</div>
+
+<script src="app.js"></script>
+
 </body>
 </html>
