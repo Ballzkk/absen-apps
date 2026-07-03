@@ -2,136 +2,644 @@
   margin:0;
   padding:0;
   box-sizing:border-box;
-  font-family:'Poppins',sans-serif;
+  font-family:
+    "Poppins",
+    sans-serif;
 }
 
 body{
-  background:#0f172a;
-  color:white;
+  background:
+    linear-gradient(
+      180deg,
+      #0f172a,
+      #1e293b
+    );
+  color:#fff;
   min-height:100vh;
-  padding:25px;
+  padding-bottom:90px;
 }
 
-.container{
-  max-width:500px;
-  margin:auto;
+/* HEADER */
+
+.header{
+  padding:
+    20px
+    20px
+    10px;
 }
 
-.header-card{
-  background:linear-gradient(
-    135deg,
-    #2563eb,
-    #3b82f6
-  );
+.profile-mini{
+  display:flex;
+  align-items:center;
+  gap:15px;
+}
 
-  border-radius:30px;
-  padding:30px;
+.profile-mini img{
+  width:55px;
+  height:55px;
+  border-radius:50%;
+  object-fit:cover;
+  border:
+    2px solid
+    rgba(
+      255,
+      255,
+      255,
+      .3
+    );
+}
+
+.profile-mini h3{
+  font-size:18px;
+  font-weight:600;
+}
+
+.profile-mini p{
+  opacity:.7;
+  font-size:13px;
+}
+
+/* PAGE */
+
+.page{
+  display:none;
+  padding:20px;
+}
+
+.page.active{
+  display:block;
+}
+
+.page-header{
   margin-bottom:20px;
 }
 
-.greeting{
-  opacity:.8;
+.page-header h2{
+  font-size:22px;
+  font-weight:700;
 }
 
-.header-card h1{
-  margin-top:5px;
-  font-size:28px;
-}
+/* CARD */
 
-.ot-box{
-  margin-top:35px;
-}
+.card{
+  background:
+    rgba(
+      255,
+      255,
+      255,
+      .08
+    );
 
-.ot-box small{
-  opacity:.8;
-}
+  backdrop-filter:
+    blur(15px);
 
-.ot-box h2{
-  font-size:40px;
-  margin-top:5px;
-}
+  border:
+    1px solid
+    rgba(
+      255,
+      255,
+      255,
+      .1
+    );
 
-.info-card{
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:15px;
-}
-
-.info-item{
-  background:#1e293b;
+  border-radius:24px;
   padding:20px;
-  border-radius:25px;
+  margin-bottom:18px;
+  box-shadow:
+    0 8px 30px
+    rgba(
+      0,
+      0,
+      0,
+      .25
+    );
 }
 
-.info-item span{
-  color:#94a3b8;
+.card h3{
+  font-size:15px;
+  opacity:.8;
+  margin-bottom:10px;
 }
 
-.info-item h3{
-  margin-top:12px;
-  font-size:25px;
-}
-
-.notif-card{
-  margin-top:20px;
-  background:#1e293b;
-  border-radius:25px;
-  padding:25px;
-}
-
-.notif-card h2{
-  font-size:35px;
-  margin:10px 0;
-}
-
-.notif-card small{
-  color:#94a3b8;
-}
-
-.menu-card{
-  margin-top:20px;
-  display:grid;
-  grid-template-columns:1fr 1fr 1fr;
-  gap:15px;
-}
-
-.menu-item{
-  background:#1e293b;
-  padding:20px;
-  border-radius:25px;
+.big{
   text-align:center;
-  font-size:30px;
 }
 
-.menu-item span{
-  display:block;
-  font-size:13px;
-  margin-top:10px;
+.big-text{
+  font-size:40px;
+  font-weight:700;
+  color:#38bdf8;
 }
 
-.countdown-card{
-  margin-top:20px;
-  background:#1e293b;
-  border-radius:25px;
-  padding:25px;
+.time{
+  font-size:28px;
+  font-weight:700;
 }
 
-.countdown-card h2{
-  margin-top:10px;
-  font-size:34px;
+/* GRID */
+
+.grid{
+  display:grid;
+  grid-template-columns:
+    repeat(
+      2,
+      1fr
+    );
+
+  gap:15px;
 }
 
-.test-card{
-  margin-top:20px;
+/* COUNTDOWN */
+
+.countdown{
+  margin-top:15px;
+  text-align:center;
+  font-size:35px;
+  font-weight:700;
+  color:#38bdf8;
 }
 
-#testNotifBtn{
+#reminderText{
+  opacity:.8;
+}
+
+/* INPUT */
+
+input{
+  width:100%;
+  margin-top:8px;
+  margin-bottom:18px;
+  padding:15px;
+  border:none;
+  outline:none;
+  border-radius:16px;
+  background:
+    rgba(
+      255,
+      255,
+      255,
+      .08
+    );
+
+  color:#fff;
+  font-size:15px;
+}
+
+input::placeholder{
+  color:
+    rgba(
+      255,
+      255,
+      255,
+      .5
+    );
+}
+
+label{
+  font-size:14px;
+  opacity:.8;
+}
+
+/* BUTTON */
+
+.btn{
   width:100%;
   border:none;
-  padding:18px;
-  border-radius:20px;
+  padding:16px;
+  border-radius:18px;
+  background:
+    linear-gradient(
+      90deg,
+      #0ea5e9,
+      #2563eb
+    );
+
+  color:#fff;
   font-size:16px;
   font-weight:600;
-  background:#2563eb;
-  color:white;
+}
+
+.btn:active{
+  transform:
+    scale(.98);
+}
+
+/* PROFILE */
+
+.profile-card{
+  text-align:center;
+}
+
+.profile-photo{
+  width:120px;
+  height:120px;
+  border-radius:50%;
+  object-fit:cover;
+  margin-bottom:20px;
+  border:
+    3px solid
+    rgba(
+      255,
+      255,
+      255,
+      .25
+    );
+}
+
+/* PLANNING */
+
+.planning-list{
+  display:flex;
+  flex-direction:column;
+  gap:15px;
+}
+
+.planning-item{
+  background:
+    rgba(
+      255,
+      255,
+      255,
+      .08
+    );
+
+  border-radius:22px;
+  padding:18px;
+  display:flex;
+  justify-content:
+    space-between;
+  align-items:center;
+}
+
+.planning-date{
+  font-size:16px;
+  font-weight:600;
+}
+
+.planning-ot{
+  background:#38bdf8;
+  color:#fff;
+  padding:
+    8px
+    14px;
+  border-radius:20px;
+  font-size:14px;
+}
+
+/* SMALL */
+
+.small{
+  margin-top:15px;
+  opacity:.6;
+  font-size:13px;
+}
+
+/* NAVBAR */
+
+.bottom-nav{
+  position:fixed;
+  left:0;
+  right:0;
+  bottom:0;
+  height:78px;
+
+  background:
+    rgba(
+      15,
+      23,
+      42,
+      .95
+    );
+
+  backdrop-filter:
+    blur(20px);
+
+  display:flex;
+  justify-content:
+    space-around;
+
+  align-items:center;
+
+  border-top:
+    1px solid
+    rgba(
+      255,
+      255,
+      255,
+      .1
+    );
+
+  z-index:999;
+}
+
+.nav-btn{
+  border:none;
+  background:none;
+  color:#94a3b8;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:4px;
+  font-size:22px;
+}
+
+.nav-btn span{
+  font-size:11px;
+}
+
+.nav-btn.active{
+  color:#38bdf8;
+}
+
+/* SCROLL */
+
+::-webkit-scrollbar{
+  width:0;
+}
+
+/* RESPONSIVE */
+
+@media(
+  min-width:700px
+){
+
+  body{
+    max-width:500px;
+    margin:auto;
+  }
+
+  .bottom-nav{
+    max-width:500px;
+    margin:auto;
+    left:50%;
+    transform:
+      translateX(-50%);
+  }
+}
+
+/* =========================
+   PLANNING SWITCH
+========================= */
+
+.planning-switch{
+  display:flex;
+  gap:14px;
+  margin:18px 0 22px;
+}
+
+.planning-switch button{
+  flex:1;
+  height:56px;
+  border:none;
+  border-radius:22px;
+  background:#1a2744;
+  color:#fff;
+  font-size:16px;
+  font-weight:600;
+  transition:.25s;
+}
+
+.planning-switch button.active{
+  background:#38bdf8;
+  color:#081122;
+  box-shadow:
+    0 8px 25px
+    rgba(
+      56,
+      189,
+      248,
+      .3
+    );
+}
+
+.planning-switch button:active{
+  transform:scale(.97);
+}
+
+/* =========================
+   HEADER HARI
+========================= */
+
+.calendar-header{
+  display:grid;
+  grid-template-columns:
+    repeat(7,minmax(0,1fr));
+
+  gap:8px;
+  width:100%;
+  margin-bottom:14px;
+}
+
+.calendar-header div{
+  text-align:center;
+  color:#94a3b8;
+  font-size:14px;
+  font-weight:600;
+}
+
+/* =========================
+   CONTAINER KALENDER
+========================= */
+
+#calendarView{
+  width:100%;
+  overflow:hidden;
+}
+
+/* =========================
+   GRID KALENDER
+========================= */
+
+.calendar-grid{
+  display:grid;
+  grid-template-columns:
+    repeat(7,minmax(0,1fr));
+
+  gap:8px;
+  width:100%;
+}
+
+/* =========================
+   KOTAK KALENDER
+========================= */
+
+.calendar-day{
+  width:100%;
+  aspect-ratio:1/1;
+  background:#17233c;
+  border-radius:18px;
+
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  align-items:center;
+
+  overflow:hidden;
+  transition:.25s;
+}
+
+.calendar-day:active{
+  transform:scale(.95);
+}
+
+/* =========================
+   HARI INI
+========================= */
+
+.calendar-day.today{
+  border:2px solid #38bdf8;
+  box-shadow:
+    0 0 25px
+    rgba(
+      56,
+      189,
+      248,
+      .35
+    );
+}
+
+/* =========================
+   HARI OT
+========================= */
+
+.calendar-day.ot{
+  background:
+    linear-gradient(
+      135deg,
+      #15214a,
+      #1f4fff
+    );
+}
+
+/* =========================
+   HARI LIBUR
+========================= */
+
+.calendar-day.libur{
+  background:#24324b;
+}
+
+/* =========================
+   ANGKA TANGGAL
+========================= */
+
+.calendar-day-number{
+  font-size:17px;
+  font-weight:600;
+  color:#fff;
+}
+
+/* =========================
+   BADGE OT
+========================= */
+
+.calendar-day-badge{
+  margin-top:5px;
+  min-width:34px;
+  height:22px;
+  padding:0 8px;
+
+  border-radius:99px;
+
+  background:
+    rgba(
+      0,
+      0,
+      0,
+      .35
+    );
+
+  display:flex;
+  justify-content:center;
+  align-items:center;
+
+  color:#38bdf8;
+  font-size:12px;
+}
+
+/* =========================
+   KOTAK KOSONG
+========================= */
+
+.calendar-empty{
+  aspect-ratio:1/1;
+}
+
+/* =========================
+   PLANNING LIST
+========================= */
+
+#planningList{
+  display:flex;
+  flex-direction:column;
+  gap:14px;
+}
+
+.planning-item{
+  width:100%;
+  min-height:90px;
+  background:
+    rgba(
+      255,
+      255,
+      255,
+      .08
+    );
+
+  border-radius:24px;
+  padding:18px 20px;
+
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+
+  backdrop-filter:blur(12px);
+}
+
+.planning-info{
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+}
+.planning-date{
+  font-size:20px;
+  font-weight:700;
+  color:#fff;
+}
+
+.planning-subtitle{
+  font-size:13px;
+  color:#94a3b8;
+}
+
+.planning-ot{
+  min-width:90px;
+  height:42px;
+  padding:0 16px;
+  border-left:
+    5px solid
+    #38bdf8;
+
+  border-radius:999px;
+
+  background:
+    linear-gradient(
+      135deg,
+      #38bdf8,
+      #0ea5e9
+    );
+
+  display:flex;
+  justify-content:center;
+  align-items:center;
+
+  color:#fff;
+  font-size:15px;
+  font-weight:600;
+}
+
+.planning-item.libur{
+  border-left:
+    5px solid
+    #64748b;
 }

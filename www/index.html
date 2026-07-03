@@ -2,87 +2,355 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Pengingat Absen</title>
-
-  <link rel="stylesheet" href="style.css">
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+  <title>App Absen</title>
 
   <link
-    href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
     rel="stylesheet"
+    href="style.css"
   >
 </head>
 <body>
 
-<div class="container">
+<!-- HEADER -->
+<header class="header">
+  <div class="profile-mini">
+    <img
+      id="headerPhoto"
+      src="assets/default-profile.png"
+      alt=""
+    >
+    <div>
+      <h3 id="headerName">
+        App Absen
+      </h3>
+      <p id="headerDept">
+        Selamat Datang
+      </p>
+    </div>
+  </div>
+</header>
 
-  <div class="header-card">
-    <p class="greeting">👋 Halo, Iqbal</p>
-    <h1 id="tanggal"></h1>
+<!-- ================= BERANDA ================= -->
+<section
+  class="page active"
+  id="homePage"
+>
 
-    <div class="ot-box">
-      <small>OT Hari Ini</small>
-      <h2 id="ot">0 Jam</h2>
+  <div class="card">
+    <h2 id="todayDate">
+      Jumat, 3 Juli 2025
+    </h2>
+    <p id="todayInfo">
+      OT Hari Ini
+    </p>
+  </div>
+
+  <div class="card big">
+    <h3>Total OT</h3>
+    <div
+      class="big-text"
+      id="todayOT"
+    >
+      0 Jam
     </div>
   </div>
 
-  <div class="info-card">
+  <div class="grid">
 
-    <div class="info-item">
-      <div>
-        <span>🕖 Jam Masuk</span>
-        <h3 id="masuk">-</h3>
+    <div class="card">
+      <h3>Masuk</h3>
+      <div
+        class="time"
+        id="jamMasuk"
+      >
+        -
       </div>
     </div>
 
-    <div class="info-item">
-      <div>
-        <span>🌆 Jam Pulang</span>
-        <h3 id="pulang">-</h3>
+    <div class="card">
+      <h3>Pulang</h3>
+      <div
+        class="time"
+        id="jamPulang"
+      >
+        -
       </div>
     </div>
 
   </div>
 
-  <div class="notif-card">
-    <p>⏰ Notifikasi Berikutnya</p>
+  <div class="card">
+    <h3>
+      Reminder Berikutnya
+    </h3>
 
-    <h2 id="notif">-</h2>
-    
-    <div class="countdown-card">
-  <p>⏳ Waktu Menuju Reminder</p>
-  <h2 id="countdown">--:--:--</h2>
-</div>
+    <p id="reminderText">
+      Tidak ada reminder
+    </p>
 
-    <small id="pesanNotif">
-      Tidak ada notifikasi hari ini
-    </small>
-    
-    <div class="test-card">
-  <button id="testNotifBtn">
-    🔔 Tes Notifikasi
+    <div
+      class="countdown"
+      id="countdown"
+    >
+      --:--:--
+    </div>
+  </div>
+
+</section>
+
+<!-- ================= PLANNING ================= -->
+<section
+  class="page"
+  id="planningPage"
+>
+<h3>Planning OT Bulan Ini</h3>
+
+<div class="planning-switch">
+  <button id="calendarMode">
+    📅 Kalender
+  </button>
+
+  <button id="listMode">
+    ☰ List
   </button>
 </div>
-  </div>
 
-  <div class="menu-card">
-    <div class="menu-item">
-      📅
-      <span>Jadwal OT</span>
-    </div>
-
-    <div class="menu-item">
-      🔔
-      <span>Riwayat</span>
-    </div>
-
-    <div class="menu-item">
-      ⚙️
-      <span>Pengaturan</span>
-    </div>
-  </div>
-
+<div class="calendar-header">
+  <div>Min</div>
+  <div>Sen</div>
+  <div>Sel</div>
+  <div>Rab</div>
+  <div>Kam</div>
+  <div>Jum</div>
+  <div>Sab</div>
 </div>
+
+<div id="calendarView"></div>
+
+<div id="planningList"></div>
+
+</section>
+
+<!-- ================= EDIT OT ================= -->
+<section
+  class="page"
+  id="editPage"
+>
+
+  <div class="page-header">
+    <h2>
+      Update OT
+    </h2>
+  </div>
+
+  <div class="card">
+
+    <label>
+      Tanggal
+    </label>
+
+    <input
+      type="date"
+      id="editTanggal"
+    >
+
+    <label>
+      OT Pagi
+    </label>
+
+    <input
+      type="number"
+      id="otPagi"
+      step="0.5"
+      value="0"
+    >
+
+    <label>
+      OT Sore
+    </label>
+
+    <input
+      type="number"
+      id="otSore"
+      step="0.5"
+      value="0"
+    >
+
+    <button
+      id="saveOT"
+      class="btn"
+    >
+      Simpan
+    </button>
+
+  </div>
+
+</section>
+
+<!-- ================= UPLOAD JSON ================= -->
+<section
+  class="page"
+  id="uploadPage"
+>
+
+  <div class="page-header">
+    <h2>
+      Upload Jadwal OT
+    </h2>
+  </div>
+
+  <div class="card">
+
+    <input
+      type="file"
+      id="uploadJson"
+      accept=".json"
+    >
+
+    <button
+      class="btn"
+      id="importBtn"
+    >
+      Import Jadwal
+    </button>
+
+    <p class="small">
+      Upload file JSON untuk
+      mengganti seluruh jadwal
+      OT bulan ini.
+    </p>
+
+  </div>
+
+</section>
+
+<!-- ================= PROFILE ================= -->
+<section
+  class="page"
+  id="profilePage"
+>
+
+  <div class="page-header">
+    <h2>
+      Profile
+    </h2>
+  </div>
+
+  <div class="card profile-card">
+
+    <img
+      src="assets/default-profile.png"
+      id="profilePhoto"
+      class="profile-photo"
+    >
+
+    <input
+      type="file"
+      id="profileUpload"
+      accept="image/*"
+    >
+
+    <label>Nama</label>
+
+    <input
+      type="text"
+      id="profileName"
+      placeholder="Nama"
+    >
+
+    <label>NIK</label>
+
+    <input
+      type="text"
+      id="profileNik"
+      placeholder="NIK"
+    >
+
+    <label>Departemen</label>
+
+    <input
+      type="text"
+      id="profileDept"
+      placeholder="Departemen"
+    >
+
+    <label>No HP</label>
+
+    <input
+      type="text"
+      id="profilePhone"
+      placeholder="08xxxxxxxxxx"
+    >
+
+    <button
+      class="btn"
+      id="saveProfile"
+    >
+      Simpan Profile
+    </button>
+
+  </div>
+
+</section>
+
+<!-- ================= NAVBAR ================= -->
+<nav class="bottom-nav">
+
+  <button
+    class="nav-btn active"
+    data-page="homePage"
+  >
+    🏠
+    <span>
+      Beranda
+    </span>
+  </button>
+
+  <button
+    class="nav-btn"
+    data-page="planningPage"
+  >
+    📅
+    <span>
+      Planning
+    </span>
+  </button>
+
+  <button
+    class="nav-btn"
+    data-page="editPage"
+  >
+    ✏️
+    <span>
+      Edit OT
+    </span>
+  </button>
+
+  <button
+    class="nav-btn"
+    data-page="uploadPage"
+  >
+    📤
+    <span>
+      Upload
+    </span>
+  </button>
+
+  <button
+    class="nav-btn"
+    data-page="profilePage"
+  >
+    👤
+    <span>
+      Profile
+    </span>
+  </button>
+
+</nav>
 
 <script src="app.js"></script>
 
