@@ -505,7 +505,7 @@ function getJamMasuk(
   otPagi
 ) {
   const jam =
-    7 -
+    8 -
     Number(otPagi);
 
   return `${String(jam).padStart(
