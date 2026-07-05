@@ -1,2351 +1,900 @@
-// =========================
-// APP ABSEN
-// PART 1
-// KONSTANTA + STORAGE + UTILITY
-// =========================
-
-const STORAGE_JADWAL = "jadwalOT";
-const STORAGE_PROFILE = "profile";
-
-// =========================
-// ELEMENT HTML
-// =========================
-
-const todayDate =
-  document.getElementById(
-    "todayDate"
-  );
-
-const todayOT =
-  document.getElementById(
-    "todayOT"
-  );
-
-const jamMasuk =
-  document.getElementById(
-    "jamMasuk"
-  );
-
-const jamPulang =
-  document.getElementById(
-    "jamPulang"
-  );
-
-const reminderText =
-  document.getElementById(
-    "reminderText"
-  );
-
-const countdown =
-  document.getElementById(
-    "countdown"
-  );
-
-const planningList =
-  document.getElementById(
-    "planningList"
-  );
-
-// =========================
-// PROFILE
-// =========================
-
-const profileName =
-  document.getElementById(
-    "profileName"
-  );
-
-const profileNik =
-  document.getElementById(
-    "profileNik"
-  );
-
-const profileDept =
-  document.getElementById(
-    "profileDept"
-  );
-
-const profilePhone =
-  document.getElementById(
-    "profilePhone"
-  );
-
-const profilePhoto =
-  document.getElementById(
-    "profilePhoto"
-  );
-
-const profileUpload =
-  document.getElementById(
-    "profileUpload"
-  );
-
-const saveProfileBtn =
-  document.getElementById(
-    "saveProfile"
-  );
-
-const headerPhoto =
-  document.getElementById(
-    "headerPhoto"
-  );
-
-const headerName =
-  document.getElementById(
-    "headerName"
-  );
-
-const headerDept =
-  document.getElementById(
-    "headerDept"
-  );
-
-// =========================
-// EDIT OT
-// =========================
-
-const editTanggal =
-  document.getElementById(
-    "editTanggal"
-  );
-
-const otPagi =
-  document.getElementById(
-    "otPagi"
-  );
-
-const otSore =
-  document.getElementById(
-    "otSore"
-  );
-
-const saveOT =
-  document.getElementById(
-    "saveOT"
-  );
-
-// =========================
-// UPLOAD JSON
-// =========================
-
-const uploadJson =
-  document.getElementById(
-    "uploadJson"
-  );
-
-const importBtn =
-  document.getElementById(
-    "importBtn"
-  );
-
-// =========================
-// NAMA HARI
-// =========================
-
-const hariNama = [
-  "Minggu",
-  "Senin",
-  "Selasa",
-  "Rabu",
-  "Kamis",
-  "Jumat",
-  "Sabtu"
-];
-
-// =========================
-// NAMA BULAN
-// =========================
-
-const bulanNama = [
-  "Januari",
-  "Februari",
-  "Maret",
-  "April",
-  "Mei",
-  "Juni",
-  "Juli",
-  "Agustus",
-  "September",
-  "Oktober",
-  "November",
-  "Desember"
-];
-
-// =========================
-// KEY BULAN
-// =========================
-
-function getMonthKey(
-  bulan,
-  tahun
-) {
-  return `${bulan}-${tahun}`;
-}
-
-// =========================
-// AMBIL SEMUA DATA
-// =========================
-
-function getAllData() {
-  return JSON.parse(
-    localStorage.getItem(
-      STORAGE_JADWAL
-    ) || "{}"
-  );
-}
-
-// =========================
-// SIMPAN SEMUA DATA
-// =========================
-
-function saveAllData(
-  data
-) {
-  localStorage.setItem(
-    STORAGE_JADWAL,
-    JSON.stringify(data)
-  );
-}
-
-// =========================
-// AMBIL DATA BULAN
-// =========================
-
-function getMonthData(
-  bulan,
-  tahun
-) {
-  const all =
-    getAllData();
-
-  const key =
-    getMonthKey(
-      bulan,
-      tahun
-    );
-
-  return all[key];
-}
-
-// =========================
-// DATA BULAN SEKARANG
-// =========================
-
-function getCurrentData() {
-  const now =
-    new Date();
-
-  const bulan =
-    now.getMonth() + 1;
-
-  const tahun =
-    now.getFullYear();
-
-  return getMonthData(
-    bulan,
-    tahun
-  );
-}
-
-// =========================
-// SIMPAN DATA BULAN
-// =========================
-
-function saveMonthData(
-  data
-) {
-  const all =
-    getAllData();
-
-  const key =
-    getMonthKey(
-      data.bulan,
-      data.tahun
-    );
-
-  all[key] = data;
-
-  saveAllData(all);
-}
-
-// =========================
-// CEK WEEKEND
-// =========================
-
-function isWeekend(
-  tanggal,
-  bulan,
-  tahun
-) {
-  const date =
-    new Date(
-      tahun,
-      bulan - 1,
-      tanggal
-    );
-
-  const hari =
-    date.getDay();
-
-  return (
-    hari === 0 ||
-    hari === 6
-  );
-}
-
-// =========================
-// GET NAMA HARI
-// =========================
-
-function getHari(
-  tanggal,
-  bulan,
-  tahun
-) {
-  const date =
-    new Date(
-      tahun,
-      bulan - 1,
-      tanggal
-    );
-
-  return hariNama[
-    date.getDay()
-  ];
-}
-
-// =========================
-// GET NAMA BULAN
-// =========================
-
-function getNamaBulan(
-  bulan
-) {
-  return bulanNama[
-    bulan - 1
-  ];
-}
-
-// =========================
-// FORMAT TANGGAL
-// =========================
-
-function formatTanggal(
-  tanggal,
-  bulan,
-  tahun
-) {
-  const hari =
-    getHari(
-      tanggal,
-      bulan,
-      tahun
-    );
-
-  return `${hari}, ${tanggal} ${getNamaBulan(
-    bulan
-  )} ${tahun}`;
-}
-
-// =========================
-// AMBIL OT HARI INI
-// =========================
-
-function getTodayOT() {
-  const data =
-    getCurrentData();
-
-  if (!data)
-    return null;
-
-  const today =
-    new Date()
-      .getDate();
-
-  return data.jadwal.find(
-    x =>
-      x.tanggal ===
-      today
-  );
-}
-
-// =========================
-// KONVERSI OT
-// =========================
-
-function parseOT(ot) {
-  if (ot === 0) {
-    return {
-      otPagi: 0,
-      otSore: 0
-    };
-  }
-
-  if (ot === 1.5) {
-    return {
-      otPagi: 0,
-      otSore: 1.5
-    };
-  }
-
-  if (ot === 2) {
-    return {
-      otPagi: 1,
-      otSore: 1
-    };
-  }
-
-  if (ot > 2) {
-    return {
-      otPagi: 1,
-      otSore: ot - 1
-    };
-  }
-
-  return {
-    otPagi: 0,
-    otSore: ot
-  };
-}
-
-// =========================
-// TOTAL OT
-// =========================
-
-function getTotalOT(
-  pagi,
-  sore
-) {
-  return (
-    Number(pagi) +
-    Number(sore)
-  );
-}
-
-// =========================
-// TAMBAH JAM
-// =========================
-
-function tambahJam(
-  waktu,
-  jamTambahan
-) {
-  let [jam, menit] =
-    waktu
-      .split(":")
-      .map(Number);
-
-  let total =
-    jam * 60 +
-    menit +
-    jamTambahan * 60;
-
-  let h =
-    Math.floor(
-      total / 60
-    );
-
-  let m =
-    total % 60;
-
-  return `${String(h).padStart(
-    2,
-    "0"
-  )}:${String(m).padStart(
-    2,
-    "0"
-  )}`;
-}
-
-// =========================
-// KURANG MENIT
-// =========================
-
-function kurangMenit(
-  waktu,
-  menitKurang
-) {
-  let [jam, menit] =
-    waktu
-      .split(":")
-      .map(Number);
-
-  let total =
-    jam * 60 +
-    menit -
-    menitKurang;
-
-  if (total < 0) {
-    total +=
-      24 * 60;
-  }
-
-  const h =
-    Math.floor(
-      total / 60
-    );
-
-  const m =
-    total % 60;
-
-  return `${String(h).padStart(
-    2,
-    "0"
-  )}:${String(m).padStart(
-    2,
-    "0"
-  )}`;
-}
-
-// =========================
-// JAM MASUK
-// =========================
-
-function getJamMasuk(
-  otPagi
-) {
-  const jam =
-    8 -
-    Number(otPagi);
-
-  return `${String(jam).padStart(
-    2,
-    "0"
-  )}:00`;
-}
-
-// =========================
-// JAM PULANG NORMAL
-// =========================
-
-function getPulangNormal(
-  hari
-) {
-  return hari ===
-    "Jumat"
-    ? "17:00"
-    : "16:45";
-}
-
-// =========================
-// JAM PULANG
-// =========================
-
-function getJamPulang(
-  hari,
-  otSore
-) {
-  return tambahJam(
-    getPulangNormal(
-      hari
-    ),
-    otSore
-  );
-}
-
-// =========================
-// APP ABSEN
-// PART 2
-// DASHBOARD + STATUS HARI
-// =========================
-
-function loadToday() {
-  const data =
-    getCurrentData();
-
-  const now =
-    new Date();
-
-  const tanggal =
-    now.getDate();
-
-  const bulan =
-    now.getMonth() + 1;
-
-  const tahun =
-    now.getFullYear();
-
-  const hari =
-    getHari(
-      tanggal,
-      bulan,
-      tahun
-    );
-
-  todayDate.innerText =
-    formatTanggal(
-      tanggal,
-      bulan,
-      tahun
-    );
-
-  // Belum ada data bulan
-  if (!data) {
-    todayOT.innerText =
-      "-";
-
-    jamMasuk.innerText =
-      "-";
-
-    jamPulang.innerText =
-      "-";
-
-    reminderText.innerText =
-      "Belum ada jadwal bulan ini";
-
-    countdown.innerText =
-      "--:--:--";
-
-    return;
-  }
-
-  const item =
-    data.jadwal.find(
-      x =>
-        x.tanggal ===
-        tanggal
-    );
-
-  // Tidak ada data OT
-  if (!item) {
-
-    if (
-      isWeekend(
-        tanggal,
-        bulan,
-        tahun
-      )
-    ) {
-      todayOT.innerText =
-        "Libur";
-
-      reminderText.innerText =
-        "Hari ini libur 🎉";
-    } else {
-      todayOT.innerText =
-        "0 Jam";
-
-      reminderText.innerText =
-        "Tidak ada over time hari ini";
-    }
-
-    jamMasuk.innerText =
-      "-";
-
-    jamPulang.innerText =
-      "-";
-
-    countdown.innerText =
-      "--:--:--";
-
-    return;
-  }
-
-  // Ada data tapi OT = 0
-  if (item.ot <= 0) {
-
-    if (
-      isWeekend(
-        tanggal,
-        bulan,
-        tahun
-      )
-    ) {
-      todayOT.innerText =
-        "Libur";
-
-      reminderText.innerText =
-        "Hari ini libur 🎉";
-    } else {
-      todayOT.innerText =
-        "0 Jam";
-
-      reminderText.innerText =
-        "Tidak ada over time hari ini";
-    }
-
-    jamMasuk.innerText =
-      "-";
-
-    jamPulang.innerText =
-      "-";
-
-    countdown.innerText =
-      "--:--:--";
-
-    return;
-  }
-
-  // Ada OT
-  const ot =
-    parseOT(
-      item.ot
-    );
-
-  const masuk =
-    getJamMasuk(
-      ot.otPagi
-    );
-
-  const pulang =
-    getJamPulang(
-      hari,
-      ot.otSore
-    );
-
-  todayOT.innerText =
-    `${item.ot} Jam`;
-
-  jamMasuk.innerText =
-    masuk;
-
-  jamPulang.innerText =
-    pulang;
-}
-
-// =========================
-// PLANNING LIST
-// =========================
-
-function renderPlanning() {
-  const data =
-    getCurrentData();
-
-  planningList.innerHTML =
-    "";
-
-  if (!data) {
-    planningList.innerHTML =
-      `
-      <div class="card">
-        Belum ada jadwal bulan ini.
-      </div>
-      `;
-
-    return;
-  }
-
-  data.jadwal.forEach(
-    item => {
-
-      const hari =
-        getHari(
-          item.tanggal,
-          data.bulan,
-          data.tahun
-        );
-
-      let status =
-        `${item.ot} Jam`;
-
-      if (
-        item.ot <= 0
-      ) {
-        if (
-          isWeekend(
-            item.tanggal,
-            data.bulan,
-            data.tahun
-          )
-        ) {
-          status =
-            "Libur";
-        } else {
-          status =
-            "Tidak Ada OT";
-        }
-      }
-
-      planningList.innerHTML += `
-      <div class="planning-item">
-
-        <div>
-
-          <div class="planning-info">
-
-  <div class="planning-date">
-    ${hari},
-    ${item.tanggal}
-    ${getNamaBulan(
-      data.bulan
-    )}
-  </div>
-
-  <div class="planning-subtitle">
-    ${
-      status === "Libur"
-        ? "Hari Libur"
-        : status ===
-          "Tidak Ada OT"
-        ? "Tidak ada over time"
-        : "Over Time"
-    }
-  </div>
-
-</div>
-
-        </div>
-
-        <div
-          class="planning-ot"
-        >
-          ${status}
-        </div>
-
-      </div>
-      `;
-    }
-  );
-}
-
-// =========================
-// AMBIL DATA OT BERDASARKAN TANGGAL
-// =========================
-
-function getOTByDate(
-  tanggal,
-  bulan,
-  tahun
-) {
-  const data =
-    getMonthData(
-      bulan,
-      tahun
-    );
-
-  if (!data)
-    return null;
-
-  return data.jadwal.find(
-    x =>
-      x.tanggal ===
-      tanggal
-  );
-}
-
-// =========================
-// STATUS HARI
-// =========================
-
-function getStatusHari(
-  tanggal,
-  bulan,
-  tahun
-) {
-  const item =
-    getOTByDate(
-      tanggal,
-      bulan,
-      tahun
-    );
-
-  if (
-    item &&
-    item.ot > 0
-  ) {
-    return "OT";
-  }
-
-  if (
-    isWeekend(
-      tanggal,
-      bulan,
-      tahun
-    )
-  ) {
-    return "LIBUR";
-  }
-
-  return "NORMAL";
-}
-
-// =========================
-// CEK OT AKTIF
-// =========================
-
-function hasOTToday() {
-  const item =
-    getTodayOT();
-
-  if (!item)
-    return false;
-
-  return item.ot > 0;
-}
-
-// =========================
-// PART 3
-// UPLOAD JSON
-// VALIDASI
-// KALENDER
-// =========================
-
-const calendarView =
-  document.getElementById(
-    "calendarView"
-  );
-
-const calendarHeader =
-  document.querySelector(
-    ".calendar-header"
-  );
-
-const listMode =
-  document.getElementById(
-    "listMode"
-  );
-
-const calendarMode =
-  document.getElementById(
-    "calendarMode"
-  );
-
-// =========================
-// VALIDASI JSON
-// =========================
-
-function validateJSON(
-  data
-) {
-  if (
-    !data ||
-    !data.bulan ||
-    !data.tahun ||
-    !Array.isArray(
-      data.jadwal
-    )
-  ) {
-    return false;
-  }
-
-  for (
-    const item of data.jadwal
-  ) {
-    if (
-      typeof item.tanggal !==
-        "number" ||
-      typeof item.ot !==
-        "number"
-    ) {
-      return false;
-    }
-  }
-
-  return true;
-}
-
-// =========================
-// IMPORT JSON
-// =========================
-
-function importJSON() {
-  const file =
-    uploadJson.files[0];
-
-  if (!file) {
-    alert(
-      "Pilih file JSON."
-    );
-
-    return;
-  }
-
-  const reader =
-    new FileReader();
-
-  reader.onload =
-    e => {
-
-      try {
-        const data =
-          JSON.parse(
-            e.target.result
-          );
-
-        if (
-          !validateJSON(
-            data
-          )
-        ) {
-          alert(
-            "Format JSON tidak valid."
-          );
-
-          return;
-        }
-
-        saveMonthData(
-          data
-        );
-
-        alert(
-          `Jadwal ${getNamaBulan(
-            data.bulan
-          )} ${data.tahun}
-berhasil diimport.`
-        );
-
-        loadToday();
-        renderPlanning();
-        renderCalendar();
-
-        if (
-          isCapacitor
-        ) {
-          scheduleToday();
-        }
-
-      } catch (e) {
-        alert(
-          "JSON tidak valid."
-        );
-      }
-    };
-
-  reader.readAsText(
-    file
-  );
-}
-
-importBtn.onclick =
-  importJSON;
-
-// =========================
-// JUMLAH HARI
-// =========================
-
-function getDaysInMonth(
-  bulan,
-  tahun
-) {
-  return new Date(
-    tahun,
-    bulan,
-    0
-  ).getDate();
-}
-
-// =========================
-// RENDER KALENDER
-// =========================
-
-function renderCalendar() {
-  const data =
-    getCurrentData();
-
-  calendarView.innerHTML =
-    "";
-
-  if (!data)
-    return;
-
-  const days =
-    getDaysInMonth(
-      data.bulan,
-      data.tahun
-    );
-
-  let html =
-    `<div class="calendar-grid">`;
-
-  const firstDay =
-    new Date(
-      data.tahun,
-      data.bulan - 1,
-      1
-    ).getDay();
-
-  for (
-    let i = 0;
-    i < firstDay;
-    i++
-  ) {
-    html += `
-      <div class="calendar-empty">
-      </div>
-    `;
-  }
-
-  for (
-    let i = 1;
-    i <= days;
-    i++
-  ) {
-    const item =
-      data.jadwal.find(
-        x =>
-          x.tanggal === i
-      );
-
-    let badge = "";
-
-    if (
-      item &&
-      item.ot > 0
-    ) {
-      badge =
-        `${item.ot}`;
-    }
-
-    else if (
-      isWeekend(
-        i,
-        data.bulan,
-        data.tahun
-      )
-    ) {
-      badge =
-        "L";
-    }
-
-    const now =
-      new Date();
-
-    const isToday =
-      i ===
-        now.getDate() &&
-      data.bulan ===
-        now.getMonth() +
-          1 &&
-      data.tahun ===
-        now.getFullYear();
-
-    let className =
-      "calendar-day";
-
-    if (
-      item &&
-      item.ot > 0
-    ) {
-      className +=
-        " ot";
-    }
-
-    if (
-      !item &&
-      isWeekend(
-        i,
-        data.bulan,
-        data.tahun
-      )
-    ) {
-      className +=
-        " libur";
-    }
-
-    if (isToday) {
-      className +=
-        " today";
-    }
-
-    html += `
-    <div
-      class="${className}"
-    >
-      <div
-        class="calendar-day-number"
-      >
-        ${i}
-      </div>
-
-      ${
-        badge
-          ? `
-          <div
-            class="calendar-day-badge"
-          >
-            ${badge}
-          </div>
-          `
-          : ""
-      }
-    </div>
-    `;
-  }
-
-  html +=
-    "</div>";
-
-  calendarView.innerHTML =
-    html;
-}
-
-// =========================
-// MODE LIST
-// =========================
-
-listMode.onclick =
-  () => {
-
-    planningList.style.display =
-      "flex";
-
-    calendarView.style.display =
-      "none";
-
-    if (
-      calendarHeader
-    ) {
-      calendarHeader.style.display =
-        "none";
-    }
-
-    listMode.classList.add(
-      "active"
-    );
-
-    calendarMode.classList.remove(
-      "active"
-    );
-  };
-
-// =========================
-// MODE KALENDER
-// =========================
-
-calendarMode.onclick =
-  () => {
-
-    planningList.style.display =
-      "none";
-
-    calendarView.style.display =
-      "block";
-
-    if (
-      calendarHeader
-    ) {
-      calendarHeader.style.display =
-        "grid";
-    }
-
-    calendarMode.classList.add(
-      "active"
-    );
-
-    listMode.classList.remove(
-      "active"
-    );
-
-    renderCalendar();
-  };
-  
-  // =========================
-// PART 4
-// EDIT OT
-// =========================
-
-// Mengisi tanggal hari ini
-function loadEditForm() {
-  const now = new Date();
-
-  const tahun =
-    now.getFullYear();
-
-  const bulan = String(
-    now.getMonth() + 1
-  ).padStart(2, "0");
-
-  const tanggal = String(
-    now.getDate()
-  ).padStart(2, "0");
-
-  editTanggal.value =
-    `${tahun}-${bulan}-${tanggal}`;
-
-  editTanggal.dispatchEvent(
-    new Event("change")
-  );
-}
-
-// Mengubah total OT menjadi
-// OT Pagi dan OT Sore
-function getOTForm(totalOT) {
-  return parseOT(
-    Number(totalOT)
-  );
-}
-
-// Ketika tanggal diganti
-editTanggal.onchange =
-  () => {
-
-    if (
-      !editTanggal.value
-    ) {
-      otPagi.value = 0;
-      otSore.value = 0;
-      return;
-    }
-
-    const date =
-      new Date(
-        editTanggal.value
-      );
-
-    const tanggal =
-      date.getDate();
-
-    const bulan =
-      date.getMonth() + 1;
-
-    const tahun =
-      date.getFullYear();
-
-    const item =
-      getOTByDate(
-        tanggal,
-        bulan,
-        tahun
-      );
-
-    if (!item) {
-      otPagi.value = 0;
-      otSore.value = 0;
-      return;
-    }
-
-    const ot =
-      getOTForm(
-        item.ot
-      );
-
-    otPagi.value =
-      ot.otPagi;
-
-    otSore.value =
-      ot.otSore;
-  };
-
-// Simpan OT
-function saveEditOT() {
-  if (
-    !editTanggal.value
-  ) {
-    alert(
-      "Pilih tanggal terlebih dahulu."
-    );
-
-    return;
-  }
-
-  const date =
-    new Date(
-      editTanggal.value
-    );
-
-  const tanggal =
-    date.getDate();
-
-  const bulan =
-    date.getMonth() + 1;
-
-  const tahun =
-    date.getFullYear();
-
-  let data =
-    getMonthData(
-      bulan,
-      tahun
-    );
-
-  // Jika bulan belum ada
-  if (!data) {
-    data = {
-      bulan,
-      tahun,
-      jadwal: []
-    };
-  }
-
-  const pagi =
-    Number(
-      otPagi.value
-    ) || 0;
-
-  const sore =
-    Number(
-      otSore.value
-    ) || 0;
-
-  const totalOT =
-    getTotalOT(
-      pagi,
-      sore
-    );
-
-  const index =
-    data.jadwal.findIndex(
-      x =>
-        x.tanggal ===
-        tanggal
-    );
-
-  // Jika tanggal sudah ada
-  if (index >= 0) {
-    data.jadwal[
-      index
-    ].ot =
-      totalOT;
-  }
-
-  // Jika belum ada
-  else {
-    data.jadwal.push({
-      tanggal,
-      ot: totalOT
-    });
-  }
-
-  // Urutkan tanggal
-  data.jadwal.sort(
-    (a, b) =>
-      a.tanggal -
-      b.tanggal
-  );
-
-  saveMonthData(
-    data
-  );
-
-  alert(
-    "OT berhasil disimpan."
-  );
-
-  loadToday();
-  renderPlanning();
-  renderCalendar();
-
-  if (
-    typeof scheduleToday ===
-      "function" &&
-    isCapacitor
-  ) {
-    scheduleToday();
-  }
-}
-
-// Hapus OT
-function deleteOT(
-  tanggal,
-  bulan,
-  tahun
-) {
-  const data =
-    getMonthData(
-      bulan,
-      tahun
-    );
-
-  if (!data)
-    return;
-
-  data.jadwal =
-    data.jadwal.filter(
-      x =>
-        x.tanggal !==
-        tanggal
-    );
-
-  saveMonthData(
-    data
-  );
-
-  loadToday();
-  renderPlanning();
-  renderCalendar();
-
-  if (
-    typeof scheduleToday ===
-      "function" &&
-    isCapacitor
-  ) {
-    scheduleToday();
-  }
-}
-
-// Tombol simpan
-saveOT.onclick =
-  saveEditOT;
-
-// Jalankan saat aplikasi dibuka
-loadEditForm();
-
-
-// =========================
-// PART 5
-// PROFILE + FOTO
-// =========================
-
-// Ambil profile dari localStorage
-function getProfile() {
-  return JSON.parse(
-    localStorage.getItem(
-      STORAGE_PROFILE
-    ) || "{}"
-  );
-}
-
-// Simpan profile
-function saveProfileData(
-  data
-) {
-  localStorage.setItem(
-    STORAGE_PROFILE,
-    JSON.stringify(data)
-  );
-}
-
-// Load profile ke form
-function loadProfile() {
-  const profile =
-    getProfile();
-
-  profileName.value =
-    profile.nama || "";
-
-  profileNik.value =
-    profile.nik || "";
-
-  profileDept.value =
-    profile.dept || "";
-
-  profilePhone.value =
-    profile.phone || "";
-
-  // Foto profile
-  if (profile.photo) {
-    profilePhoto.src =
-      profile.photo;
-
-    headerPhoto.src =
-      profile.photo;
-  }
-
-  // Nama di header
-  headerName.innerText =
-    profile.nama ||
-    "App Absen";
-
-  // Departemen di header
-  headerDept.innerText =
-    profile.dept ||
-    "Selamat Datang";
-}
-
-// Simpan profile
-function saveProfile() {
-  const profile = {
-    nama:
-      profileName.value.trim(),
-
-    nik:
-      profileNik.value.trim(),
-
-    dept:
-      profileDept.value.trim(),
-
-    phone:
-      profilePhone.value.trim(),
-
-    photo:
-      profilePhoto.src
-  };
-
-  saveProfileData(
-    profile
-  );
-
-  loadProfile();
-
-  alert(
-    "Profile berhasil disimpan."
-  );
-}
-
-// Tombol simpan
-saveProfileBtn.onclick =
-  saveProfile;
-
-// Upload foto
-profileUpload.onchange =
-  e => {
-
-    const file =
-      e.target.files[0];
-
-    if (!file)
-      return;
-
-    // Validasi gambar
-    if (
-      !file.type.startsWith(
-        "image/"
-      )
-    ) {
-      alert(
-        "File harus berupa gambar."
-      );
-
-      return;
-    }
-
-    const reader =
-      new FileReader();
-
-    reader.onload =
-      ev => {
-
-        profilePhoto.src =
-          ev.target.result;
-
-        const profile =
-          getProfile();
-
-        profile.photo =
-          ev.target.result;
-
-        saveProfileData(
-          profile
-        );
-
-        loadProfile();
-      };
-
-    reader.readAsDataURL(
-      file
-    );
-  };
-
-// Reset profile (opsional)
-function resetProfile() {
-  if (
-    !confirm(
-      "Hapus profile?"
-    )
-  ) {
-    return;
-  }
-
-  localStorage.removeItem(
-    STORAGE_PROFILE
-  );
-
-  profilePhoto.src =
-    "assets/default-profile.png";
-
-  headerPhoto.src =
-    "assets/default-profile.png";
-
-  profileName.value =
-    "";
-
-  profileNik.value =
-    "";
-
-  profileDept.value =
-    "";
-
-  profilePhone.value =
-    "";
-
-  headerName.innerText =
-    "App Absen";
-
-  headerDept.innerText =
-    "Selamat Datang";
-}
-
-// Jalankan saat aplikasi dibuka
-loadProfile();
-
-// =========================
-// PART 6
-// NOTIFICATION + COUNTDOWN
-// =========================
-
-const isCapacitor =
-  window.Capacitor !==
-  undefined;
-
-let LocalNotifications =
-  null;
-
-// Hari aktif sekarang
-let currentDay =
-  new Date().getDate();
-
-// =========================
-// INIT CAPACITOR
-// =========================
-
-function initCapacitor() {
-  if (!isCapacitor)
-    return;
-
-  LocalNotifications =
-    window.Capacitor
-      ?.Plugins
-      ?.LocalNotifications;
-}
-
-// =========================
-// PERMISSION
-// =========================
-
-async function requestNotifPermission() {
-  if (
-    !LocalNotifications
-  ) {
-    return;
-  }
-
-  try {
-    await LocalNotifications
-      .requestPermissions();
-  } catch (e) {
-    console.log(e);
-  }
-}
-
-// =========================
-// SCHEDULE SATU NOTIF
-// =========================
-
-async function scheduleNotif(
-  id,
-  title,
-  body,
-  jam
-) {
-  if (
-    !LocalNotifications
-  ) {
-    return;
-  }
-
-  const now =
-    new Date();
-
-  const [h, m] =
-    jam
-      .split(":")
-      .map(Number);
-
-  const date =
-    new Date();
-
-  date.setHours(
-    h,
-    m,
-    0,
-    0
-  );
-
-  // Jangan buat notif
-  // yang waktunya sudah lewat
-  if (date <= now)
-    return;
-
-  try {
-    await LocalNotifications
-      .schedule({
-        notifications: [
-          {
-            id,
-            title,
-            body,
-            schedule: {
-              at: date
-            }
-          }
-        ]
-      });
-  } catch (e) {
-    console.log(e);
-  }
-}
-
-// =========================
-// AMBIL REMINDER HARI INI
-// =========================
-
-function getReminderList() {
-  const data =
-    getCurrentData();
-
-  if (!data)
-    return [];
-
-  const today =
-    new Date()
-      .getDate();
-
-  const item =
-    data.jadwal.find(
-      x =>
-        x.tanggal ===
-        today
-    );
-
-  if (
-    !item ||
-    item.ot <= 0
-  ) {
-    return [];
-  }
-
-  const hari =
-    getHari(
-      today,
-      data.bulan,
-      data.tahun
-    );
-
-  const ot =
-    parseOT(
-      item.ot
-    );
-
-  const masuk =
-    getJamMasuk(
-      ot.otPagi
-    );
-
-  const pulang =
-    getJamPulang(
-      hari,
-      ot.otSore
-    );
-
-  return [
-    {
-      text:
-        "Absen Masuk",
-      jam:
-        kurangMenit(
-          masuk,
-          45
-        )
+/*
+=========================================
+ APP ABSEN V2
+ Version : 2.2.0 (Full Upgraded)
+ Author  : Iqbal A & Gemini
+=========================================
+*/
+
+/*=========================================
+CONFIG
+=========================================*/
+const CONFIG = {
+    APP: {
+        NAME: "App Absen",
+        VERSION: "2.2.0",
+        DEBUG: true
     },
-    {
-      text:
-        "Absen Masuk",
-      jam:
-        kurangMenit(
-          masuk,
-          30
-        )
+    STORAGE: {
+        SCHEDULE_PREFIX: "jadwalOT_", 
+        PROFILE: "profile",
+        SETTINGS: "settings"
     },
-    {
-      text:
-        "Absen Masuk",
-      jam:
-        kurangMenit(
-          masuk,
-          15
-        )
+    WORKDAY: {
+        SUNDAY: 0, MONDAY: 1, TUESDAY: 2, WEDNESDAY: 3, THURSDAY: 4, FRIDAY: 5, SATURDAY: 6
     },
-    {
-      text:
-        "Absen Pulang",
-      jam:
-        kurangMenit(
-          pulang,
-          45
-        )
+    WORK: {
+        START: "08:00",
+        HOLIDAY_START: "07:00",
+        NORMAL_END: "16:45",
+        FRIDAY_END: "17:00",
+        BREAK_START: "12:00",
+        BREAK_DURATION: 45,
+        MAX_OT: 24
     },
-    {
-      text:
-        "Absen Pulang",
-      jam:
-        kurangMenit(
-          pulang,
-          30
-        )
+    OT: {
+        MORNING: 1,
+        MIN: 0,
+        MAX: 24
     },
-    {
-      text:
-        "Absen Pulang",
-      jam:
-        kurangMenit(
-          pulang,
-          15
-        )
+    REMINDER: {
+        BEFORE: [45, 30, 15]
+    },
+    STATUS: {
+        WORK: "Hari Kerja",
+        WORK_OT: "Hari Kerja OT",
+        HOLIDAY: "Hari Libur",
+        HOLIDAY_OT: "OT Hari Libur"
+    },
+    PROFILE: {
+        DEFAULT_NAME: "Karyawan",
+        DEFAULT_DEPARTMENT: "Belum mengatur departemen",
+        DEFAULT_PHONE: "",
+        DEFAULT_PHOTO: "assets/default-profile.png"
     }
-  ];
-}
-
-// =========================
-// JADWALKAN HARI INI
-// =========================
-
-async function scheduleToday() {
-  if (
-    !LocalNotifications
-  ) {
-    return;
-  }
-
-  const data =
-    getCurrentData();
-
-  if (!data)
-    return;
-
-  const reminderList =
-    getReminderList();
-
-  try {
-    const pending =
-      await LocalNotifications.getPending();
-
-    await LocalNotifications.cancel({
-      notifications:
-        pending.notifications
-    });
-  } catch (e) {
-    console.log(e);
-  }
-
-  if (
-    reminderList.length ===
-    0
-  ) {
-    return;
-  }
-
-  const today =
-    new Date()
-      .getDate();
-
-  const item =
-    data.jadwal.find(
-      x =>
-        x.tanggal ===
-        today
-    );
-
-  const hari =
-    getHari(
-      today,
-      data.bulan,
-      data.tahun
-    );
-
-  const ot =
-    parseOT(
-      item.ot
-    );
-
-  const masuk =
-    getJamMasuk(
-      ot.otPagi
-    );
-
-  const pulang =
-    getJamPulang(
-      hari,
-      ot.otSore
-    );
-
-  let id = 1;
-
-  for (
-    const item of reminderList
-  ) {
-    const body =
-      item.text ===
-      "Absen Masuk"
-        ? `⏰ Absen masuk pukul ${masuk}`
-        : `🏠 Absen pulang pukul ${pulang}`;
-
-    await scheduleNotif(
-      id++,
-      item.text,
-      body,
-      item.jam
-    );
-  }
-}
-
-// =========================
-// COUNTDOWN
-// =========================
-
-let countdownInterval =
-  null;
-
-function startCountdown() {
-  if (
-    countdownInterval
-  ) {
-    clearInterval(
-      countdownInterval
-    );
-  }
-
-  countdownInterval =
-    setInterval(() => {
-
-      const list =
-        getReminderList();
-
-      if (
-        list.length ===
-        0
-      ) {
-        countdown.innerText =
-          "--:--:--";
-
-        return;
-      }
-
-      const now =
-        new Date();
-
-      let target =
-        null;
-
-      let text =
-        "";
-
-      for (
-        const item of list
-      ) {
-        const [h, m] =
-          item.jam
-            .split(":")
-            .map(Number);
-
-        const d =
-          new Date();
-
-        d.setHours(
-          h,
-          m,
-          0,
-          0
-        );
-
-        if (d > now) {
-          target = d;
-          text =
-            item.text;
-          break;
-        }
-      }
-
-      if (!target) {
-        reminderText.innerText =
-          "Reminder selesai";
-
-        countdown.innerText =
-          "--:--:--";
-
-        return;
-      }
-
-      reminderText.innerText =
-        text;
-
-      const diff =
-        target - now;
-
-      const jam =
-        Math.floor(
-          diff /
-            3600000
-        );
-
-      const menit =
-        Math.floor(
-          diff %
-            3600000 /
-            60000
-        );
-
-      const detik =
-        Math.floor(
-          diff %
-            60000 /
-            1000
-        );
-
-      countdown.innerText =
-        `${String(jam)
-          .padStart(
-            2,
-            "0"
-          )}:${String(menit)
-          .padStart(
-            2,
-            "0"
-          )}:${String(detik)
-          .padStart(
-            2,
-            "0"
-          )}`;
-    }, 1000);
-}
-
-// =========================
-// GANTI HARI OTOMATIS
-// =========================
-
-function watchDayChange() {
-  setInterval(() => {
-
-    const today =
-      new Date()
-        .getDate();
-
-    if (
-      today !==
-      currentDay
-    ) {
-      currentDay =
-        today;
-
-      loadToday();
-
-      renderPlanning();
-
-      renderCalendar();
-
-      startCountdown();
-
-      if (
-        isCapacitor
-      ) {
-        scheduleToday();
-      }
-    }
-  }, 60000);
-}
-
-// =========================
-// PART 7
-// BOTTOM NAVIGATION
-// =========================
-
-const navButtons =
-  document.querySelectorAll(
-    ".nav-btn"
-  );
-
-const pages =
-  document.querySelectorAll(
-    ".page"
-  );
-
-// =========================
-// BUKA PAGE
-// =========================
-
-function openPage(
-  pageId
-) {
-  pages.forEach(page => {
-    page.classList.remove(
-      "active"
-    );
-  });
-
-  navButtons.forEach(btn => {
-    btn.classList.remove(
-      "active"
-    );
-  });
-
-  const page =
-    document.getElementById(
-      pageId
-    );
-
-  if (page) {
-    page.classList.add(
-      "active"
-    );
-  }
-
-  const button =
-    document.querySelector(
-      `.nav-btn[data-page="${pageId}"]`
-    );
-
-  if (button) {
-    button.classList.add(
-      "active"
-    );
-  }
-}
-
-// =========================
-// EVENT NAVIGATION
-// =========================
-
-navButtons.forEach(btn => {
-  btn.onclick = () => {
-    const pageId =
-      btn.dataset.page;
-
-    openPage(pageId);
-  };
-});
-
-
-// =========================
-// OVERRIDE OPEN PAGE
-// =========================
-
-const oldOpenPage =
-  openPage;
-
-openPage = function (
-  pageId
-) {
-  pages.forEach(page => {
-    page.classList.remove(
-      "active"
-    );
-  });
-
-  navButtons.forEach(btn => {
-    btn.classList.remove(
-      "active"
-    );
-  });
-
-  const page =
-    document.getElementById(
-      pageId
-    );
-
-  if (page) {
-    page.classList.add(
-      "active"
-    );
-  }
-
-  const button =
-    document.querySelector(
-      `.nav-btn[data-page="${pageId}"]`
-    );
-
-  if (button) {
-    button.classList.add(
-      "active"
-    );
-  }
 };
 
-// =========================
-// REFRESH SAAT PINDAH PAGE
-// =========================
+/*=========================================
+ELEMENT UTILITY (SINKRONISASI ID STRUKTUR HTML BARU)
+=========================================*/
+const $ = id => document.getElementById(id);
+const EL = {
+    headerPhoto: $("headerPhoto"),
+    headerName: $("headerName"),
+    headerDept: $("headerDept"),
+    todayDate: $("todayDate"),
+    todayInfo: $("todayInfo"),
+    todayOT: $("todayOT"),
+    jamMasuk: $("jamMasuk"),
+    jamPulang: $("jamPulang"),
+    reminderText: $("reminderText"),
+    countdown: $("countdownText"), // Sinkronisasi ID countdownText HTML
+    planningList: $("planningList"),
+    calendarView: $("calendarView"),
+    calendarHeaderWrapper: $("calendarHeaderWrapper"), // ID Pembungkus Header Hari
+    btnSwitchCalendar: $("btnSwitchCalendar"),
+    btnSwitchList: $("btnSwitchList"),
+    editTanggal: $("editTanggal"),
+    editOT: $("editOT"),
+    btnMinOT: $("btnMinOT"),
+    btnPlusOT: $("btnPlusOT"),
+    livePreviewBox: $("livePreview"), // Sinkronisasi ID livePreview HTML
+    saveOT: $("saveOT"),
+    importFile: $("importFile"),
+    btnImport: $("btnImport"),
+    btnExport: $("btnExport"),
+    exportBulan: $("exportBulan"),   
+    exportTahun: $("exportTahun"),   
+    btnClearOT: $("btnClearOT"),
+    profilePhoto: $("profilePhoto"),
+    profileUpload: $("profileUpload"),
+    profileName: $("profileName"),
+    profileNik: $("profileNik"),
+    profileDept: $("profileDept"),
+    profilePhone: $("profilePhone"),
+    saveProfile: $("saveProfile"),
+    pages: document.querySelectorAll(".page"),
+    navButtons: document.querySelectorAll(".nav-btn")
+};
 
-function refreshCurrentPage() {
-  const active =
-    document.querySelector(
-      ".page.active"
-    );
-
-  if (!active)
-    return;
-
-  switch (
-    active.id
-  ) {
-    case "homePage":
-      loadToday();
-      break;
-
-    case "planningPage":
-      renderPlanning();
-      break;
-
-    case "profilePage":
-      loadProfile();
-      break;
-
-    case "editPage":
-      editTanggal.dispatchEvent(
-        new Event(
-          "change"
-        )
-      );
-      break;
-  }
+function debug(...message) {
+    if (!CONFIG.DEBUG) return;
+    console.log("[APP]", ...message);
 }
 
-// =========================
-// REFRESH SETIAP PAGE DIBUKA
-// =========================
-
-navButtons.forEach(btn => {
-  btn.addEventListener(
-    "click",
-    () => {
-      setTimeout(() => {
-        refreshCurrentPage();
-      }, 100);
+/*=========================================
+STORAGE LAYER
+=========================================*/
+const Storage = {
+    load(key) {
+        try {
+            const data = localStorage.getItem(key);
+            return data ? JSON.parse(data) : null;
+        } catch (error) {
+            debug(error);
+            return null;
+        }
+    },
+    save(key, data) {
+        localStorage.setItem(key, JSON.stringify(data));
+    },
+    remove(key) {
+        localStorage.removeItem(key);
+    },
+    getScheduleKey(tahun, bulan) {
+        return `${CONFIG.STORAGE.SCHEDULE_PREFIX}${tahun}_${String(bulan).padStart(2, "0")}`;
     }
-  );
-});
+};
 
-// =========================
-// PART 8
-// INIT APP
-// =========================
+/*=========================================
+HELPER FUNCTIONS
+=========================================*/
+const Helper = {
+    pad(number) {
+        return String(number).padStart(2, "0");
+    },
+    getMonthName(month) {
+        const months = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+        return months[month - 1] || "";
+    },
+    formatDateIndonesia(tanggal, bulan, tahun, dayName = "") {
+        const date = `${tanggal} ${this.getMonthName(bulan)} ${tahun}`;
+        return dayName ? `${dayName}, ${date}` : date;
+    },
+    toMinute(time) {
+        if (!time || time === "-") return 0;
+        const [h, m] = time.split(":").map(Number);
+        return (h * 60) + m;
+    },
+    toTime(totalMinute) {
+        totalMinute = ((totalMinute % 1440) + 1440) % 1440;
+        return this.pad(Math.floor(totalMinute / 60)) + ":" + this.pad(totalMinute % 60);
+    },
+    addMinute(time, minute) {
+        return this.toTime(this.toMinute(time) + minute);
+    },
+    subtractMinute(time, minute) {
+        return this.toTime(this.toMinute(time) - minute);
+    }
+};
 
-function initApp() {
+/*=========================================
+VALIDATOR
+=========================================*/
+const Validator = {
+    ot(value) {
+        const n = Number(value);
+        return !isNaN(n) && n >= 0 && n <= CONFIG.WORK.MAX_OT;
+    },
+    json(data) {
+        return data && typeof data === "object" && data.bulan && data.tahun && Array.isArray(data.jadwal);
+    }
+};
 
-  // Load dashboard
-  loadToday();
+/*=========================================
+HOLIDAY & ENGINE
+=========================================*/
+const Holiday = {
+    isWeekend(tanggal, bulan, tahun) {
+        const day = new Date(tahun, bulan - 1, tanggal).getDay();
+        return day === 0 || day === 6;
+    },
+    isHoliday(tanggal, bulan, tahun) {
+        return this.isWeekend(tanggal, bulan, tahun);
+    }
+};
 
-  // Load planning
-  renderPlanning();
+const Engine = {
+    getDay(tanggal, bulan, tahun) {
+        return new Date(tahun, bulan - 1, tanggal).getDay();
+    },
+    getDayName(tanggal, bulan, tahun) {
+        const dayNames = ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"];
+        return dayNames[this.getDay(tanggal, bulan, tahun)];
+    },
+    getRule(tanggal, bulan, tahun) {
+        const holiday = Holiday.isHoliday(tanggal, bulan, tahun);
+        return {
+            holiday,
+            start: holiday ? CONFIG.WORK.HOLIDAY_START : CONFIG.WORK.START,
+            end: (this.getDay(tanggal, bulan, tahun) === CONFIG.WORKDAY.FRIDAY) ? CONFIG.WORK.FRIDAY_END : CONFIG.WORK.NORMAL_END
+        };
+    },
+    getWorkSchedule(tanggal, bulan, tahun, totalOT = 0, inputPagiOverride = null) {
+        const rule = this.getRule(tanggal, bulan, tahun);
+        
+        if (rule.holiday && Number(totalOT) === 0) {
+            return {
+                tanggal, bulan, tahun,
+                day: this.getDay(tanggal, bulan, tahun),
+                dayName: this.getDayName(tanggal, bulan, tahun),
+                holiday: true, working: false,
+                status: CONFIG.STATUS.HOLIDAY,
+                ot: { total: 0, pagi: 0, sore: 0, pagiMinute: 0, soreMinute: 0 },
+                jamMasuk: "-", jamPulang: "-", reminder: []
+            };
+        }
 
-  // Load kalender
-  renderCalendar();
-  calendarMode.click();
+        const otTotal = Math.max(CONFIG.OT.MIN, Math.min(CONFIG.OT.MAX, Number(totalOT) || 0));
+        let pagi = 0, sore = otTotal;
 
-  // Load profile
-  loadProfile();
+        if (rule.holiday) {
+            pagi = 0; 
+            sore = otTotal;
+        } else {
+            if (inputPagiOverride !== null) {
+                pagi = inputPagiOverride;
+                sore = Math.max(0, otTotal - pagi);
+            } else if (otTotal > 1.5) {
+                pagi = CONFIG.OT.MORNING;
+                sore = otTotal - CONFIG.OT.MORNING;
+            }
+        }
 
-  // Load form edit
-  loadEditForm();
+        const pagiMinute = Math.round(pagi * 60);
+        const soreMinute = Math.round(sore * 60);
 
-  // Load halaman terakhir
-  openPage("homePage");
+        const jamMasuk = rule.holiday ? rule.start : Helper.subtractMinute(rule.start, pagiMinute);
+        
+        let breakMinute = 0;
+        if (rule.holiday && (Helper.toMinute(rule.start) + soreMinute) >= Helper.toMinute(CONFIG.WORK.BREAK_START)) {
+            breakMinute = CONFIG.WORK.BREAK_DURATION;
+        }
+        const jamPulang = rule.holiday ? Helper.addMinute(rule.start, soreMinute + breakMinute) : Helper.addMinute(rule.end, soreMinute);
 
-  // Start countdown
-  startCountdown();
+        const reminder = [];
+        CONFIG.REMINDER.BEFORE.forEach(min => {
+            reminder.push({ type: "masuk", minute: min, time: Helper.subtractMinute(jamMasuk, min) });
+            reminder.push({ type: "pulang", minute: min, time: Helper.subtractMinute(jamPulang, min) });
+        });
+        reminder.sort((a, b) => Helper.toMinute(a.time) - Helper.toMinute(b.time));
 
-  // Watch pergantian hari
-  watchDayChange();
+        return {
+            tanggal, bulan, tahun,
+            day: this.getDay(tanggal, bulan, tahun),
+            dayName: this.getDayName(tanggal, bulan, tahun),
+            holiday: rule.holiday, working: !rule.holiday,
+            status: rule.holiday ? CONFIG.STATUS.HOLIDAY_OT : (otTotal > 0 ? CONFIG.STATUS.WORK_OT : CONFIG.STATUS.WORK),
+            ot: { total: otTotal, pagi, sore, pagiMinute, soreMinute },
+            jamMasuk, jamPulang, reminder
+        };
+    },
+    getScheduleData(targetBulan, targetTahun) {
+        const key = Storage.getScheduleKey(targetTahun, targetBulan);
+        let data = Storage.load(key);
+        
+        if (!data) {
+            const totalDay = new Date(targetTahun, targetBulan, 0).getDate();
+            const jadwal = [];
+            for (let i = 1; i <= totalDay; i++) {
+                jadwal.push({ tanggal: i, ot: 0 });
+            }
+            data = { bulan: Number(targetBulan), tahun: Number(targetTahun), jadwal };
+            Storage.save(key, data);
+        }
+        return data;
+    },
+    getSpecificTotalOT(tanggal, bulan, tahun) {
+        const schedule = this.getScheduleData(bulan, tahun);
+        const data = schedule.jadwal.find(item => Number(item.tanggal) === Number(tanggal));
+        return data ? Number(data.ot || 0) : 0;
+    }
+};
 
-  // Inisialisasi Capacitor
-  initCapacitor();
+/*=========================================
+DASHBOARD MODULE (FIXED ANTI-UNDEFINED RENDER)
+=========================================*/
+const Dashboard = {
+    timer: null,
+    schedule: null,
 
-  // Notifikasi
-  if (isCapacitor) {
-    requestNotifPermission();
-    scheduleToday();
-  }
+    init() {
+        this.load();
+    },
+    load() {
+        const now = new Date();
+        this.schedule = Engine.getWorkSchedule(now.getDate(), now.getMonth() + 1, now.getFullYear(), Engine.getSpecificTotalOT(now.getDate(), now.getMonth() + 1, now.getFullYear()));
+        this.render();
+    },
+    refresh() {
+        this.stopCountdown();
+        this.load();
+        this.startCountdown();
+    },
+    render() {
+        if (!this.schedule) return;
+        
+        const profile = Storage.load(CONFIG.STORAGE.PROFILE);
+        
+        // PROTEKSI STRICT AGAR TIDAK PERNAH MENAMPILKAN STRING "undefined"
+        const finalName = (profile?.nama && profile.nama.trim() !== "" && profile.nama !== "undefined") ? profile.nama : CONFIG.PROFILE.DEFAULT_NAME;
+        const finalDept = (profile?.departemen && profile.departemen.trim() !== "" && profile.departemen !== "undefined") ? profile.departemen : CONFIG.PROFILE.DEFAULT_DEPARTMENT;
 
-  console.log(
-    "App Absen Ready 🚀"
-  );
-}
+        if (EL.headerName) EL.headerName.textContent = finalName;
+        if (EL.headerDept) EL.headerDept.textContent = finalDept;
+        if (EL.headerPhoto) EL.headerPhoto.src = profile?.photo || CONFIG.PROFILE.DEFAULT_PHOTO;
 
-// =========================
-// APP READY
-// =========================
+        if (EL.todayDate) EL.todayDate.textContent = Helper.formatDateIndonesia(this.schedule.tanggal, this.schedule.bulan, this.schedule.tahun, this.schedule.dayName);
+        if (EL.todayInfo) EL.todayInfo.textContent = this.schedule.status;
+        if (EL.todayOT) EL.todayOT.textContent = `${this.schedule.ot.total} Jam`;
+        if (EL.jamMasuk) EL.jamMasuk.textContent = this.schedule.jamMasuk;
+        if (EL.jamPulang) EL.jamPulang.textContent = this.schedule.jamPulang;
+        
+        if (EL.exportBulan) EL.exportBulan.value = this.schedule.bulan;
+        if (EL.exportTahun) {
+            // Isi pilihan dropdown tahun dinamis jika kosong
+            if (EL.exportTahun.options.length === 0) {
+                const currentY = this.schedule.tahun;
+                for (let y = currentY - 2; y <= currentY + 2; y++) {
+                    const opt = document.createElement("option");
+                    opt.value = y; opt.textContent = y;
+                    EL.exportTahun.appendChild(opt);
+                }
+            }
+            EL.exportTahun.value = this.schedule.tahun;
+        }
+    },
+    getCountdownTarget() {
+        const now = new Date();
+        const currentMinute = (now.getHours() * 60) + now.getMinutes();
 
-document.addEventListener(
-  "DOMContentLoaded",
-  () => {
-    initApp();
-  }
-);
+        let nextReminder = null;
+        this.schedule.reminder.forEach(item => {
+            const min = Helper.toMinute(item.time);
+            if (min >= currentMinute && (!nextReminder || min < Helper.toMinute(nextReminder.time))) {
+                nextReminder = item;
+            }
+        });
+
+        if (nextReminder) {
+            return { 
+                type: "REMINDER_TODAY", 
+                timeStr: nextReminder.time, 
+                label: `Absen ${nextReminder.type === "masuk" ? "Masuk" : "Pulang"}`, 
+                targetDate: now 
+            };
+        }
+
+        const besok = new Date();
+        besok.setDate(now.getDate() + 1);
+        
+        const besokTanggal = besok.getDate();
+        const besokBulan = besok.getMonth() + 1;
+        const besokTahun = besok.getFullYear();
+        const besokDayName = Engine.getDayName(besokTanggal, besokBulan, besokTahun);
+        
+        const besokSchedule = Engine.getWorkSchedule(besokTanggal, besokBulan, besokTahun, Engine.getSpecificTotalOT(besokTanggal, besokBulan, besokTahun));
+
+        if (besokSchedule.holiday && besokSchedule.ot.total === 0) {
+            return {
+                type: "LIBUR_BESOK",
+                label: "Reminder Besok:",
+                subLabel1: `${besokDayName}, ${besokTanggal} ${Helper.getMonthName(besokBulan)}`,
+                subLabel2: "Status: Hari Libur (Istirahat)"
+            };
+        }
+
+        return {
+            type: "KERJA_BESOK",
+            timeStr: besokSchedule.jamMasuk,
+            label: "Reminder Besok:",
+            subLabel1: `${besokDayName}, ${besokTanggal} ${Helper.getMonthName(besokBulan)}`,
+            subLabel2: `Jam Masuk: ${besokSchedule.jamMasuk}`,
+            targetDate: besok
+        };
+    },
+    updateCountdownLoop() {
+        const target = this.getCountdownTarget();
+
+        if (!target) {
+            if (EL.reminderText) EL.reminderText.textContent = "Tidak ada jadwal";
+            if (EL.countdown) EL.countdown.textContent = "--:--:--";
+            return;
+        }
+
+        if (target.type === "LIBUR_BESOK") {
+            if (EL.reminderText) EL.reminderText.innerHTML = `${target.label} <strong>${target.subLabel1}</strong> (${target.subLabel2})`;
+            if (EL.countdown) EL.countdown.textContent = "LIBUR";
+            return;
+        }
+
+        if (target.type === "KERJA_BESOK") {
+            if (EL.reminderText) EL.reminderText.innerHTML = `${target.label} <strong>${target.subLabel1}</strong> - ${target.subLabel2}`;
+        } else {
+            if (EL.reminderText) EL.reminderText.textContent = `Reminder Hari Ini: ${target.label}`;
+        }
+
+        const now = new Date();
+        const timeTarget = new Date(target.targetDate.getTime());
+        const [h, m] = target.timeStr.split(":").map(Number);
+        timeTarget.setHours(h, m, 0, 0);
+
+        const diff = timeTarget.getTime() - now.getTime();
+
+        if (diff <= 0) {
+            if (EL.countdown) EL.countdown.textContent = "00:00:00";
+            this.refresh();
+            return;
+        }
+
+        const totalSec = Math.floor(diff / 1000);
+        const hours = Math.floor(totalSec / 3600);
+        const minutes = Math.floor((totalSec % 3600) / 60);
+        const seconds = totalSec % 60;
+
+        if (EL.countdown) EL.countdown.textContent = `${Helper.pad(hours)}:${Helper.pad(minutes)}:${Helper.pad(seconds)}`;
+    },
+    startCountdown() {
+        this.stopCountdown();
+        this.updateCountdownLoop();
+        this.timer = setInterval(() => this.updateCountdownLoop(), 1000);
+    },
+    stopCountdown() {
+        if (this.timer) {
+            clearInterval(this.timer);
+            this.timer = null;
+        }
+    },
+    start() {
+        this.init();
+        this.startCountdown();
+    },
+    destroy() {
+        this.stopCountdown();
+    }
+};
+
+/*=========================================
+PLANNING MODULE (WITH ACCURATE CALENDAR POPUP MODE)
+=========================================*/
+const Planning = {
+    monthData: [],
+    currentMonth: 0,
+    currentYear: 0,
+    calendarMode: true,
+
+    init() {
+        this.load();
+    },
+    load() {
+        const now = new Date();
+        this.currentMonth = now.getMonth() + 1;
+        this.currentYear = now.getFullYear();
+        this.refreshData();
+        this.bind();
+    },
+    refreshData() {
+        const data = Engine.getScheduleData(this.currentMonth, this.currentYear);
+        this.monthData = [];
+        const totalDay = new Date(data.tahun, data.bulan, 0).getDate();
+        for (let i = 1; i <= totalDay; i++) {
+            const item = data.jadwal.find(x => Number(x.tanggal) === i);
+            const ot = item ? Number(item.ot) : 0;
+            this.monthData.push(Engine.getWorkSchedule(i, data.bulan, data.tahun, ot));
+        }
+        this.render();
+    },
+    render() {
+        this.renderList();
+        this.renderCalendar(document.getElementById("calendarView"));
+        this.renderCalendar(document.getElementById("calendarViewModal"));
+        this.switchMode(this.calendarMode);
+    },
+    renderList() {
+        if (!EL.planningList) return;
+        EL.planningList.innerHTML = "";
+        const now = new Date();
+
+        this.monthData.forEach(day => {
+            const item = document.createElement("div");
+            item.className = "planning-item";
+            if (day.tanggal === now.getDate() && day.bulan === (now.getMonth() + 1) && day.tahun === now.getFullYear()) {
+                item.classList.add("today");
+            }
+            item.dataset.tanggal = day.tanggal;
+            item.innerHTML = `
+                <div class="planning-left">
+                    <strong>${day.dayName}, ${day.tanggal} ${Helper.getMonthName(day.bulan)}</strong>
+                    <div>${day.status}</div>
+                </div>
+                <div class="planning-right">
+                    <div>${day.ot.total} Jam</div>
+                    <small>${day.jamMasuk} - ${day.jamPulang}</small>
+                </div>
+            `;
+            EL.planningList.appendChild(item);
+        });
+    },
+    renderCalendar(targetElement) {
+        if (!targetElement) return;
+        targetElement.innerHTML = "";
+        const now = new Date();
+
+        const firstDay = new Date(this.currentYear, this.currentMonth - 1, 1).getDay();
+        for (let i = 0; i < firstDay; i++) {
+            const empty = document.createElement("div");
+            empty.className = "calendar-empty";
+            targetElement.appendChild(empty);
+        }
+
+        this.monthData.forEach(day => {
+            const cell = document.createElement("div");
+            cell.className = "calendar-day";
+            if (day.holiday) cell.classList.add("holiday");
+            if (day.ot.total > 0) cell.classList.add("ot");
+            if (day.tanggal === now.getDate() && day.bulan === (now.getMonth() + 1) && day.tahun === now.getFullYear()) {
+                cell.classList.add("today");
+            }
+            cell.dataset.tanggal = day.tanggal;
+            
+            // Format render lama: Angka tanggal & badge total jam lembur selalu dicetak bersamaan
+            cell.innerHTML = `
+                <div class="calendar-date">${day.tanggal}</div>
+                <div class="calendar-total">${day.ot.total} Jam</div>
+            `;
+            targetElement.appendChild(cell);
+        });
+    },
+    switchMode(calendar = true) {
+        this.calendarMode = calendar;
+        const boxWrapper = document.getElementById("calendarBoxWrapper");
+        
+        if (calendar) {
+            EL.btnSwitchCalendar?.classList.add("active");
+            EL.btnSwitchList?.classList.remove("active");
+            if (EL.calendarHeaderWrapper) EL.calendarHeaderWrapper.style.setProperty("display", "grid", "important");
+            if (boxWrapper) boxWrapper.style.setProperty("display", "block", "important");
+            if (EL.planningList) EL.planningList.style.setProperty("display", "none", "important");
+        } else {
+            EL.btnSwitchCalendar?.classList.remove("active");
+            EL.btnSwitchList?.classList.add("active");
+            if (EL.calendarHeaderWrapper) EL.calendarHeaderWrapper.style.setProperty("display", "none", "important");
+            if (boxWrapper) boxWrapper.style.setProperty("none", "none", "important");
+            if (boxWrapper) boxWrapper.style.display = "none";
+            if (EL.planningList) EL.planningList.style.setProperty("display", "flex", "important");
+        }
+    },
+    refresh() {
+        this.refreshData();
+    },
+    bind() {
+        // Switch Buttons
+        document.getElementById("btnSwitchCalendar")?.addEventListener("click", () => this.switchMode(true));
+        document.getElementById("btnSwitchList")?.addEventListener("click", () => this.switchMode(false));
+
+        // Modal Action Trigger
+        const modal = document.getElementById("calendarModal");
+        document.getElementById("btnExpandCalendar")?.addEventListener("click", () => {
+            if(modal) modal.classList.add("open");
+        });
+        document.getElementById("btnCloseCalendarModal")?.addEventListener("click", () => {
+            if(modal) modal.classList.remove("open");
+        });
+
+        // Click on normal grid & modal grid
+        const handlerClick = e => {
+            const cell = e.target.closest(".calendar-day");
+            if (cell) {
+                if(modal) modal.classList.remove("open");
+                EditOT.fill(Number(cell.dataset.tanggal), this.currentMonth, this.currentYear);
+                Navigation.open("editPage");
+            }
+        };
+
+        document.getElementById("calendarView")?.addEventListener("click", handlerClick);
+        document.getElementById("calendarViewModal")?.addEventListener("click", handlerClick);
+        
+        document.getElementById("planningList")?.addEventListener("click", e => {
+            const item = e.target.closest(".planning-item");
+            if (item) {
+                EditOT.fill(Number(item.dataset.tanggal), this.currentMonth, this.currentYear);
+                Navigation.open("editPage");
+            }
+        });
+    }
+};
+/*=========================================
+EDIT OT MODULE
+=========================================*/
+const EditOT = {
+    data: null,
+    currentTanggal: null,
+    currentBulan: null,
+    currentTahun: null,
+
+    init() {
+        const now = new Date();
+        this.currentTanggal = now.getDate();
+        this.currentBulan = now.getMonth() + 1;
+        this.currentTahun = now.getFullYear();
+        this.load();
+        this.bind();
+    },
+    load() {
+        this.data = Engine.getScheduleData(this.currentBulan, this.currentTahun);
+    },
+    refresh() {
+        this.load();
+    },
+    fill(tanggal, bulan, tahun) {
+        const now = new Date();
+        this.currentTanggal = tanggal ? Number(tanggal) : now.getDate();
+        this.currentBulan = bulan ? Number(bulan) : this.currentBulan || (now.getMonth() + 1);
+        this.currentTahun = tahun ? Number(tahun) : this.currentTahun || now.getFullYear();
+
+        this.refresh();
+
+        let item = this.data.jadwal.find(x => Number(x.tanggal) === this.currentTanggal);
+        if (!item) {
+            item = { tanggal: this.currentTanggal, ot: 0 };
+            this.data.jadwal.push(item);
+        }
+
+        if (EL.editTanggal) {
+            EL.editTanggal.value = `${this.currentTahun}-${Helper.pad(this.currentBulan)}-${Helper.pad(item.tanggal)}`;
+        }
+
+        if (EL.editOT) {
+            EL.editOT.value = item.ot;
+        }
+
+        this.updateLivePreview();
+    },
+    updateLivePreview() {
+        if (!EL.livePreviewBox) return;
+
+        const total = parseFloat(EL.editOT?.value) || 0;
+        const sim = Engine.getWorkSchedule(this.currentTanggal, this.currentBulan, this.currentTahun, total);
+
+        if (sim.jamMasuk === "-") {
+            EL.livePreviewBox.innerHTML = `<strong>Detail Rencana:</strong><br>Hari Libur / Istirahat (Tidak ada jam kerja)`;
+        } else {
+            EL.livePreviewBox.innerHTML = `<strong>Detail Rencana:</strong><br>Jam Masuk: <span style="color:#7F8CFF; font-weight:700;">${sim.jamMasuk}</span> | Jam Pulang: <span style="color:#7F8CFF; font-weight:700;">${sim.jamPulang}</span><br><small>${sim.status} (Total Lembur: ${sim.ot.total} Jam)</small>`;
+        }
+    },
+    save() {
+        const totalOT = parseFloat(EL.editOT?.value) || 0;
+
+        if (!Validator.ot(totalOT)) {
+            alert("Input nilai OT tidak valid! (Maksimal batas lembur 24 Jam)");
+            return;
+        }
+
+        const index = this.data.jadwal.findIndex(x => Number(x.tanggal) === this.currentTanggal);
+        
+        if (index !== -1) {
+            this.data.jadwal[index].ot = totalOT;
+        } else {
+            this.data.jadwal.push({ tanggal: this.currentTanggal, ot: totalOT });
+        }
+
+        const key = Storage.getScheduleKey(this.currentTahun, this.currentBulan);
+        Storage.save(key, this.data);
+        
+        Dashboard.refresh();
+        Planning.refresh();
+        alert("Data OT Berhasil Disimpan.");
+    },
+    bind() {
+        EL.saveOT?.replaceWith(EL.saveOT.cloneNode(true));
+        EL.saveOT = $("saveOT");
+        EL.saveOT?.addEventListener("click", () => this.save());
+
+        EL.editTanggal?.replaceWith(EL.editTanggal.cloneNode(true));
+        EL.editTanggal = $("editTanggal");
+        EL.editTanggal?.addEventListener("change", e => {
+            if (!e.target.value) return;
+            const parts = e.target.value.split("-"); 
+            
+            this.currentTahun = Number(parts[0]);
+            this.currentBulan = Number(parts[1]);
+            const newDay = Number(parts[2]);
+
+            this.fill(newDay, this.currentBulan, this.currentTahun);
+        });
+
+        EL.btnMinOT?.replaceWith(EL.btnMinOT.cloneNode(true));
+        EL.btnMinOT = $("btnMinOT");
+        EL.btnMinOT?.addEventListener("click", () => {
+            let current = parseFloat(EL.editOT.value) || 0;
+            if (current > 0) {
+                EL.editOT.value = current - 0.5;
+                this.updateLivePreview();
+            }
+        });
+
+        EL.btnPlusOT?.replaceWith(EL.btnPlusOT.cloneNode(true));
+        EL.btnPlusOT = $("btnPlusOT");
+        EL.btnPlusOT?.addEventListener("click", () => {
+            let current = parseFloat(EL.editOT.value) || 0;
+            if (current < CONFIG.WORK.MAX_OT) {
+                EL.editOT.value = current + 0.5;
+                this.updateLivePreview();
+            }
+        });
+    }
+};
+
+/*=========================================
+PROFILE MODULE
+=========================================*/
+const Profile = {
+    data: null,
+    init() {
+        this.load();
+        this.fill();
+        this.bind();
+    },
+    load() {
+        this.data = Storage.load(CONFIG.STORAGE.PROFILE) || {
+            nama: CONFIG.PROFILE.DEFAULT_NAME,
+            nik: CONFIG.PROFILE.DEFAULT_NIK,
+            departemen: CONFIG.PROFILE.DEFAULT_DEPARTMENT,
+            phone: CONFIG.PROFILE.DEFAULT_PHONE,
+            photo: CONFIG.PROFILE.DEFAULT_PHOTO
+        };
+    },
+    fill() {
+        if (!EL.profileName) return;
+        EL.profileName.value = this.data.nama === CONFIG.PROFILE.DEFAULT_NAME ? "" : this.data.nama;
+        EL.profileNik.value = this.data.nik;
+        EL.profileDept.value = this.data.departemen === CONFIG.PROFILE.DEFAULT_DEPARTMENT ? "" : this.data.departemen;
+        EL.profilePhone.value = this.data.phone;
+        if (EL.profilePhoto) EL.profilePhoto.src = this.data.photo || CONFIG.PROFILE.DEFAULT_PHOTO;
+    },
+    save() {
+        if (!EL.profileName.value.trim()) {
+            alert("Nama tidak boleh kosong.");
+            return;
+        }
+        this.data.nama = EL.profileName.value.trim();
+        this.data.nik = EL.profileNik.value.trim();
+        this.data.departemen = EL.profileDept.value.trim();
+        this.data.phone = EL.profilePhone.value.trim();
+
+        Storage.save(CONFIG.STORAGE.PROFILE, this.data);
+        Dashboard.refresh();
+        alert("Profil berhasil disimpan.");
+    },
+    bind() {
+        EL.saveProfile?.addEventListener("click", () => this.save());
+        EL.profileUpload?.addEventListener("change", e => {
+            const file = e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = () => {
+                this.data.photo = reader.result;
+                if (EL.profilePhoto) EL.profilePhoto.src = reader.result;
+                Storage.save(CONFIG.STORAGE.PROFILE, this.data);
+                Dashboard.refresh();
+            };
+            reader.readAsDataURL(file);
+        });
+    }
+};
+
+/*=========================================
+IMPORT & EXPORT MODULE
+=========================================*/
+const ImportData = {
+    selectedFile: null,
+    init() { this.bind(); },
+    bind() {
+        EL.importFile?.addEventListener("change", e => { this.selectedFile = e.target.files[0]; });
+        
+        EL.btnImport?.addEventListener("click", () => {
+            if (!this.selectedFile) { alert("Pilih file JSON terlebih dahulu!"); return; }
+            const reader = new FileReader();
+            reader.onload = ev => {
+                try {
+                    const parsed = JSON.parse(ev.target.result);
+                    if (!Validator.json(parsed)) throw new Error("Format objek salah.");
+                    
+                    const key = Storage.getScheduleKey(parsed.tahun, parsed.bulan);
+                    
+                    if (localStorage.getItem(key)) {
+                        const yakin = confirm(`Data Lembur untuk bulan ${Helper.getMonthName(parsed.bulan)} ${parsed.tahun} sudah ada di memori. Apakah Anda ingin menimpanya dengan data dari file JSON ini?`);
+                        if (!yakin) return;
+                    }
+
+                    Storage.save(key, parsed);
+                    Dashboard.refresh(); 
+                    Planning.refresh(); 
+                    EditOT.init();
+                    alert("Import Sukses dan Berhasil Disinkronkan!");
+                } catch(err) { 
+                    alert("Gagal Impor: Format data file JSON tidak cocok dengan sistem."); 
+                }
+            };
+            reader.readAsText(this.selectedFile);
+        });
+
+        EL.btnExport?.replaceWith(EL.btnExport.cloneNode(true));
+        EL.btnExport = $("btnExport");
+        EL.btnExport?.addEventListener("click", () => {
+            const targetBulan = Number(EL.exportBulan?.value || new Date().getMonth() + 1);
+            const targetTahun = Number(EL.exportTahun?.value || new Date().getFullYear());
+            
+            const key = Storage.getScheduleKey(targetTahun, targetBulan);
+            const targetData = Storage.load(key);
+
+            if (!targetData || !targetData.jadwal || targetData.jadwal.every(item => Number(item.ot) === 0)) {
+                alert(`⚠️ Peringatan: Data lembur untuk bulan ${Helper.getMonthName(targetBulan)} ${targetTahun} tidak ditemukan atau kosong. Proses ekspor dibatalkan.`);
+                return;
+            }
+
+            const blob = new Blob([JSON.stringify(targetData, null, 2)], { type: "application/json" });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = `Jadwal_OT_${targetTahun}_${Helper.pad(targetBulan)}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+        });
+
+        EL.btnClearOT?.addEventListener("click", () => {
+            if (confirm("Hapus seluruh histori lembur di bulan aktif saat ini?")) {
+                const key = Storage.getScheduleKey(Planning.currentYear, Planning.currentMonth);
+                Storage.remove(key);
+                Dashboard.refresh(); Planning.refresh(); EditOT.init();
+            }
+        });
+    }
+};
+
+/*=========================================
+NAVIGATION LAYER
+=========================================*/
+const Navigation = {
+    currentPage: "homePage",
+    init() {
+        this.bind();
+        this.open(this.currentPage);
+    },
+    open(pageId) {
+        if (!pageId) return;
+        EL.pages.forEach(p => p.classList.remove("active"));
+        const target = $(pageId);
+        if (target) target.classList.add("active");
+
+        EL.navButtons.forEach(btn => {
+            btn.classList.remove("active");
+            if (btn.dataset.page === pageId) btn.classList.add("active");
+        });
+
+        this.currentPage = pageId;
+        if (pageId === "editPage") {
+            EditOT.fill(EditOT.currentTanggal, EditOT.currentBulan, EditOT.currentTahun);
+        }
+    },
+    bind() {
+        EL.navButtons?.forEach(btn => {
+            btn.addEventListener("click", () => this.open(btn.dataset.page));
+        });
+    }
+};
+
+/*=========================================
+APPLICATION INITIALIZER
+=========================================*/
+const App = {
+    initialized: false,
+    init() {
+        if (this.initialized) return;
+        this.initialized = true;
+        try {
+            Dashboard.init();
+            Planning.init();
+            EditOT.init();
+            Profile.init();
+            ImportData.init();
+            Navigation.init();
+            Dashboard.start();
+            debug(`${CONFIG.APP.NAME} V${CONFIG.APP.VERSION} Initialized Successfully.`);
+        } catch (error) {
+            console.error("Initialization Failed:", error);
+        }
+    }
+};
+
+document.addEventListener("DOMContentLoaded", () => App.init());

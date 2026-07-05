@@ -2,357 +2,235 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8">
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0"
-  >
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>App Absen</title>
-
-  <link
-    rel="stylesheet"
-    href="style.css"
-  >
+  <link rel="stylesheet" href="style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
 
-<!-- HEADER -->
-<header class="header">
-  <div class="profile-mini">
-    <img
-      id="headerPhoto"
-      src="assets/default-profile.png"
-      alt=""
-    >
-    <div>
-      <h3 id="headerName">
-        App Absen
-      </h3>
-      <p id="headerDept">
-        Selamat Datang
-      </p>
+  <header class="header">
+    <div class="profile-mini">
+      <div class="user-info">
+        <span id="headerWelcome">Selamat Datang</span>
+        <h3 id="headerName">App Absen</h3>
+        <p id="headerDept">Memuat data...</p>
+      </div>
+      <img id="headerPhoto" src="assets/default-profile.png" alt="Profile">
     </div>
-  </div>
-</header>
+  </header>
 
-<!-- ================= BERANDA ================= -->
-<section
-  class="page active"
-  id="homePage"
->
+  <main class="main-content">
 
-  <div class="card">
-    <h2 id="todayDate">
-      Jumat, 3 Juli 2025
-    </h2>
-    <p id="todayInfo">
-      OT Hari Ini
-    </p>
-  </div>
+    <section class="page active" id="homePage">
+      <div class="summary-meta">
+        <h2 id="todayDate">Memuat Tanggal...</h2>
+        <span class="status-badge" id="todayInfo">Status Hari Ini</span>
+      </div>
 
-  <div class="card big">
-    <h3>Total OT</h3>
-    <div
-      class="big-text"
-      id="todayOT"
-    >
-      0 Jam
-    </div>
-  </div>
+      <div class="hero-card">
+        <span class="hero-label">Total Lembur Bulan Ini</span>
+        <div class="big-text" id="todayOT">0 Jam</div>
+      </div>
 
-  <div class="grid">
+      <div class="time-grid">
+        <div class="time-box">
+          <span class="time-label">Jam Masuk</span>
+          <div class="time-value" id="jamMasuk">-</div>
+        </div>
+        <div class="time-box">
+          <span class="time-label">Jam Pulang</span>
+          <div class="time-value" id="jamPulang">-</div>
+        </div>
+      </div>
 
-    <div class="card">
-      <h3>Masuk</h3>
-      <div
-        class="time"
-        id="jamMasuk"
-      >
-        -
+      <div class="reminder-card">
+        <span class="reminder-label">Pengingat Jadwal</span>
+        <div id="reminderText">Tidak ada pengingat aktif saat ini.</div>
+        <div class="countdown" id="countdownText">-</div>
+      </div>
+    </section>
+
+    <section class="page" id="planningPage">
+      <div class="page-header">
+        <h2>Planning Lembur</h2>
+      </div>
+
+      <div class="planning-switch">
+        <button class="active" id="btnSwitchCalendar">Kalender</button>
+        <button id="btnSwitchList">Daftar</button>
+      </div>
+
+      <div class="calendar-header" id="calendarHeaderWrapper">
+        <div>Min</div>
+        <div>Sen</div>
+        <div>Sel</div>
+        <div>Rab</div>
+        <div>Kam</div>
+        <div>Jum</div>
+        <div>Sab</div>
+      </div>
+
+      <div class="calendar-container" id="calendarBoxWrapper">
+        <div id="calendarView"></div>
+        <button id="btnExpandCalendar" class="btn-expand-cal" title="Perbesar Kalender">⛶</button>
+      </div>
+
+      <div id="planningList" style="display: none;"></div>
+    </section>
+
+    <div class="calendar-modal-overlay" id="calendarModal">
+      <div class="calendar-modal-content">
+        <div class="calendar-modal-header">
+          <h3>Kalender Penuh</h3>
+          <button id="btnCloseCalendarModal" class="btn-close-modal">✕</button>
+        </div>
+        <div class="calendar-header-modal">
+          <div>Min</div><div>Sen</div><div>Sel</div><div>Rab</div><div>Kam</div><div>Jum</div><div>Sab</div>
+        </div>
+        <div id="calendarViewModal"></div>
       </div>
     </div>
 
-    <div class="card">
-      <h3>Pulang</h3>
-      <div
-        class="time"
-        id="jamPulang"
-      >
-        -
+    <section class="page" id="editPage">
+      <div class="page-header">
+        <h2>Atur Lembur</h2>
       </div>
-    </div>
 
-  </div>
+      <div class="form-container">
+        <div class="input-group">
+          <label>Tanggal Kerja</label>
+          <input type="date" id="editTanggal">
+        </div>
 
-  <div class="card">
-    <h3>
-      Reminder Berikutnya
-    </h3>
+        <div class="input-group">
+          <label>Jam Lembur (OT)</label>
+          <div class="stepper-wrapper">
+            <button class="step-btn" id="btnMinOT">-</button>
+            <input type="number" id="editOT" value="0" min="0" max="24" step="0.5" readonly>
+            <button class="step-btn" id="btnPlusOT">+</button>
+          </div>
+        </div>
 
-    <p id="reminderText">
-      Tidak ada reminder
-    </p>
+        <div class="live-preview-box" id="livePreview">
+          Pilih tanggal dan tentukan jam OT untuk melihat kalkulasi detail jam masuk & pulang kerja Anda di sini.
+        </div>
 
-    <div
-      class="countdown"
-      id="countdown"
-    >
-      --:--:--
-    </div>
-  </div>
+        <button class="btn btn-primary" id="saveOT">Simpan Konfigurasi</button>
+      </div>
+    </section>
 
-</section>
+    <section class="page" id="importPage">
+      <div class="page-header">
+        <h2>Manajemen Data</h2>
+      </div>
 
-<!-- ================= PLANNING ================= -->
-<section
-  class="page"
-  id="planningPage"
->
-<h3>Planning OT Bulan Ini</h3>
+      <div class="action-card">
+        <div class="action-card-info">
+          <h4>Ekspor Data Kerja</h4>
+          <p>Cadangkan seluruh data historis dan rencana jam lembur Anda ke dalam berkas JSON berkode aman.</p>
+        </div>
+        <div class="export-selectors">
+          <select id="exportBulan" class="select-premium">
+            <option value="1">Januari</option>
+            <option value="2">Februari</option>
+            <option value="3">Maret</option>
+            <option value="4">April</option>
+            <option value="5">Mei</option>
+            <option value="6">Juni</option>
+            <option value="7">Juli</option>
+            <option value="8">Agustus</option>
+            <option value="9">September</option>
+            <option value="10">Oktober</option>
+            <option value="11">November</option>
+            <option value="12">Desember</option>
+          </select>
+          <select id="exportTahun" class="select-premium"></select>
+        </div>
+        <button class="btn btn-outline" id="btnExport">Unduh File Cadangan</button>
+      </div>
 
-<div class="planning-switch">
-  <button id="calendarMode">
-    📅 Kalender
-  </button>
+      <div class="action-card">
+        <div class="action-card-info">
+          <h4>Impor Data Kerja</h4>
+          <p>Unggah kembali berkas cadangan JSON Anda untuk memulihkan seluruh riwayat atau rencana jadwal lembur.</p>
+        </div>
+        <div class="file-uploader-wrapper">
+          <input type="file" id="importFile" accept=".json" class="file-input-premium">
+        </div>
+        <button class="btn btn-secondary" id="btnImport">Proses & Terapkan Data</button>
+      </div>
 
-  <button id="listMode">
-    ☰ List
-  </button>
-</div>
+      <div class="action-card danger-card">
+        <div class="action-card-info">
+          <h4>Zona Bahaya</h4>
+          <p>Aksi di bawah ini bersifat permanen dan tidak dapat dibatalkan. Pastikan data penting Anda sudah diekspor terlebih dahulu.</p>
+        </div>
+        <div class="danger-actions">
+          <button class="btn btn-danger" id="btnClearOT">Hapus Lembur</button>
+          <button class="btn btn-danger" id="btnResetApp">Reset Semua</button>
+        </div>
+      </div>
+    </section>
 
-<div class="calendar-header">
-  <div>Min</div>
-  <div>Sen</div>
-  <div>Sel</div>
-  <div>Rab</div>
-  <div>Kam</div>
-  <div>Jum</div>
-  <div>Sab</div>
-</div>
+    <section class="page" id="profilePage">
+      <div class="page-header">
+        <h2>Profil Pengguna</h2>
+      </div>
 
-<div id="calendarView"></div>
+      <div class="profile-hero">
+        <div class="avatar-wrapper">
+          <img src="assets/default-profile.png" id="profilePhoto" class="profile-photo" alt="Foto">
+          <label for="profileUpload" class="avatar-change-label">Ganti Foto</label>
+          <input type="file" id="profileUpload" accept="image/*">
+        </div>
+      </div>
 
-<div id="planningList"></div>
+      <div class="form-container">
+        <div class="input-group">
+          <label>Nama Lengkap</label>
+          <input type="text" id="profileName" placeholder="Masukkan nama Anda">
+        </div>
 
-</section>
+        <div class="input-group">
+          <label>Nomor Induk Karyawan (NIK)</label>
+          <input type="text" id="profileNik" placeholder="Masukkan NIK">
+        </div>
 
-<!-- ================= EDIT OT ================= -->
-<section
-  class="page"
-  id="editPage"
->
+        <div class="input-group">
+          <label>Departemen / Divisi</label>
+          <input type="text" id="profileDept" placeholder="Contoh: Produksi">
+        </div>
 
-  <div class="page-header">
-    <h2>
-      Update OT
-    </h2>
-  </div>
+        <div class="input-group">
+          <label>Nomor Handphone</label>
+          <input type="text" id="profilePhone" placeholder="08xxxxxxxxxx">
+        </div>
 
-  <div class="card">
+        <button class="btn btn-primary" id="saveProfile">Simpan Perubahan</button>
+      </div>
+    </section>
 
-    <label>
-      Tanggal
-    </label>
+  </main>
 
-    <input
-      type="date"
-      id="editTanggal"
-    >
-
-    <label>
-      OT Pagi
-    </label>
-
-    <input
-      type="number"
-      id="otPagi"
-      step="0.5"
-      value="0"
-    >
-
-    <label>
-      OT Sore
-    </label>
-
-    <input
-      type="number"
-      id="otSore"
-      step="0.5"
-      value="0"
-    >
-
-    <button
-      id="saveOT"
-      class="btn"
-    >
-      Simpan
+  <nav class="bottom-nav">
+    <button class="nav-btn active" data-page="homePage">
+      <span>Beranda</span>
     </button>
-
-  </div>
-
-</section>
-
-<!-- ================= UPLOAD JSON ================= -->
-<section
-  class="page"
-  id="uploadPage"
->
-
-  <div class="page-header">
-    <h2>
-      Upload Jadwal OT
-    </h2>
-  </div>
-
-  <div class="card">
-
-    <input
-      type="file"
-      id="uploadJson"
-      accept=".json"
-    >
-
-    <button
-      class="btn"
-      id="importBtn"
-    >
-      Import Jadwal
+    <button class="nav-btn" data-page="planningPage">
+      <span>Planning</span>
     </button>
-
-    <p class="small">
-      Upload file JSON untuk
-      mengganti seluruh jadwal
-      OT bulan ini.
-    </p>
-
-  </div>
-
-</section>
-
-<!-- ================= PROFILE ================= -->
-<section
-  class="page"
-  id="profilePage"
->
-
-  <div class="page-header">
-    <h2>
-      Profile
-    </h2>
-  </div>
-
-  <div class="card profile-card">
-
-    <img
-      src="assets/default-profile.png"
-      id="profilePhoto"
-      class="profile-photo"
-    >
-
-    <input
-      type="file"
-      id="profileUpload"
-      accept="image/*"
-    >
-
-    <label>Nama</label>
-
-    <input
-      type="text"
-      id="profileName"
-      placeholder="Nama"
-    >
-
-    <label>NIK</label>
-
-    <input
-      type="text"
-      id="profileNik"
-      placeholder="NIK"
-    >
-
-    <label>Departemen</label>
-
-    <input
-      type="text"
-      id="profileDept"
-      placeholder="Departemen"
-    >
-
-    <label>No HP</label>
-
-    <input
-      type="text"
-      id="profilePhone"
-      placeholder="08xxxxxxxxxx"
-    >
-
-    <button
-      class="btn"
-      id="saveProfile"
-    >
-      Simpan Profile
+    <button class="nav-btn" data-page="editPage">
+      <span>Atur OT</span>
     </button>
+    <button class="nav-btn" data-page="importPage">
+      <span>Data</span>
+    </button>
+    <button class="nav-btn" data-page="profilePage">
+      <span>Profil</span>
+    </button>
+  </nav>
 
-  </div>
-
-</section>
-
-<!-- ================= NAVBAR ================= -->
-<nav class="bottom-nav">
-
-  <button
-    class="nav-btn active"
-    data-page="homePage"
-  >
-    🏠
-    <span>
-      Beranda
-    </span>
-  </button>
-
-  <button
-    class="nav-btn"
-    data-page="planningPage"
-  >
-    📅
-    <span>
-      Planning
-    </span>
-  </button>
-
-  <button
-    class="nav-btn"
-    data-page="editPage"
-  >
-    ✏️
-    <span>
-      Edit OT
-    </span>
-  </button>
-
-  <button
-    class="nav-btn"
-    data-page="uploadPage"
-  >
-    📤
-    <span>
-      Upload
-    </span>
-  </button>
-
-  <button
-    class="nav-btn"
-    data-page="profilePage"
-  >
-    👤
-    <span>
-      Profile
-    </span>
-  </button>
-
-</nav>
-
-<script src="app.js"></script>
-
+  <script src="app.js"></script>
 </body>
 </html>
