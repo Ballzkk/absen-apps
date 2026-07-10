@@ -1,7 +1,7 @@
 /*
 =========================================
  APP ABSEN V2
- Version : 2.2.0 (Full Upgraded)
+ Version : 2.2.0 (Full Upgraded + Notification Fix)
  Author  : Iqbal A & Gemini
 =========================================
 */
@@ -16,7 +16,7 @@ const CONFIG = {
         DEBUG: true
     },
     STORAGE: {
-        SCHEDULE_PREFIX: "jadwalOT_", 
+        SCHEDULE_PREFIX: "jadwalOT_", // Basis penyimpanan multi-bulan (jadwalOT_YYYY_MM)
         PROFILE: "profile",
         SETTINGS: "settings"
     },
@@ -47,15 +47,16 @@ const CONFIG = {
         HOLIDAY_OT: "OT Hari Libur"
     },
     PROFILE: {
-        DEFAULT_NAME: "Karyawan",
-        DEFAULT_DEPARTMENT: "Belum mengatur departemen",
+        DEFAULT_NAME: "",
+        DEFAULT_NIK: "",
+        DEFAULT_DEPARTMENT: "",
         DEFAULT_PHONE: "",
         DEFAULT_PHOTO: "assets/default-profile.png"
     }
 };
 
 /*=========================================
-ELEMENT UTILITY (SINKRONISASI ID STRUKTUR HTML BARU)
+ELEMENT UTILITY
 =========================================*/
 const $ = id => document.getElementById(id);
 const EL = {
@@ -68,24 +69,24 @@ const EL = {
     jamMasuk: $("jamMasuk"),
     jamPulang: $("jamPulang"),
     reminderText: $("reminderText"),
-    countdown: $("countdownText"), // Sinkronisasi ID countdownText HTML
+    countdown: $("countdown"),
     planningList: $("planningList"),
     calendarView: $("calendarView"),
-    calendarHeaderWrapper: $("calendarHeaderWrapper"), // ID Pembungkus Header Hari
-    btnSwitchCalendar: $("btnSwitchCalendar"),
-    btnSwitchList: $("btnSwitchList"),
+    calendarMode: $("calendarMode"),
+    listMode: $("listMode"),
     editTanggal: $("editTanggal"),
-    editOT: $("editOT"),
-    btnMinOT: $("btnMinOT"),
-    btnPlusOT: $("btnPlusOT"),
-    livePreviewBox: $("livePreview"), // Sinkronisasi ID livePreview HTML
+    otPagi: $("otPagi"),
+    otSore: $("otSore"),
+    labelOtPagi: $("labelOtPagi"),   
+    labelOtSore: $("labelOtSore"),   
+    livePreviewBox: $("livePreviewBox"), 
     saveOT: $("saveOT"),
-    importFile: $("importFile"),
-    btnImport: $("btnImport"),
-    btnExport: $("btnExport"),
+    uploadJson: $("uploadJson"),
+    importBtn: $("importBtn"),
+    exportBtn: $("exportBtn"),
     exportBulan: $("exportBulan"),   
     exportTahun: $("exportTahun"),   
-    btnClearOT: $("btnClearOT"),
+    clearScheduleBtn: $("clearScheduleBtn"),
     profilePhoto: $("profilePhoto"),
     profileUpload: $("profileUpload"),
     profileName: $("profileName"),
@@ -282,7 +283,7 @@ const Engine = {
 };
 
 /*=========================================
-DASHBOARD MODULE (FIXED ANTI-UNDEFINED RENDER)
+DASHBOARD MODULE (WITH SYSTEM NOTIFICATION)
 =========================================*/
 const Dashboard = {
     timer: null,
@@ -305,13 +306,8 @@ const Dashboard = {
         if (!this.schedule) return;
         
         const profile = Storage.load(CONFIG.STORAGE.PROFILE);
-        
-        // PROTEKSI STRICT AGAR TIDAK PERNAH MENAMPILKAN STRING "undefined"
-        const finalName = (profile?.nama && profile.nama.trim() !== "" && profile.nama !== "undefined") ? profile.nama : CONFIG.PROFILE.DEFAULT_NAME;
-        const finalDept = (profile?.departemen && profile.departemen.trim() !== "" && profile.departemen !== "undefined") ? profile.departemen : CONFIG.PROFILE.DEFAULT_DEPARTMENT;
-
-        if (EL.headerName) EL.headerName.textContent = finalName;
-        if (EL.headerDept) EL.headerDept.textContent = finalDept;
+        if (EL.headerName) EL.headerName.textContent = profile?.nama || CONFIG.APP.NAME;
+        if (EL.headerDept) EL.headerDept.textContent = profile?.departemen || "Selamat Datang";
         if (EL.headerPhoto) EL.headerPhoto.src = profile?.photo || CONFIG.PROFILE.DEFAULT_PHOTO;
 
         if (EL.todayDate) EL.todayDate.textContent = Helper.formatDateIndonesia(this.schedule.tanggal, this.schedule.bulan, this.schedule.tahun, this.schedule.dayName);
@@ -321,18 +317,7 @@ const Dashboard = {
         if (EL.jamPulang) EL.jamPulang.textContent = this.schedule.jamPulang;
         
         if (EL.exportBulan) EL.exportBulan.value = this.schedule.bulan;
-        if (EL.exportTahun) {
-            // Isi pilihan dropdown tahun dinamis jika kosong
-            if (EL.exportTahun.options.length === 0) {
-                const currentY = this.schedule.tahun;
-                for (let y = currentY - 2; y <= currentY + 2; y++) {
-                    const opt = document.createElement("option");
-                    opt.value = y; opt.textContent = y;
-                    EL.exportTahun.appendChild(opt);
-                }
-            }
-            EL.exportTahun.value = this.schedule.tahun;
-        }
+        if (EL.exportTahun) EL.exportTahun.value = this.schedule.tahun;
     },
     getCountdownTarget() {
         const now = new Date();
@@ -350,7 +335,7 @@ const Dashboard = {
             return { 
                 type: "REMINDER_TODAY", 
                 timeStr: nextReminder.time, 
-                label: `Absen ${nextReminder.type === "masuk" ? "Masuk" : "Pulang"}`, 
+                label: `Reminder Hari Ini: Absen ${nextReminder.type === "masuk" ? "Masuk" : "Pulang"}`, 
                 targetDate: now 
             };
         }
@@ -368,9 +353,9 @@ const Dashboard = {
         if (besokSchedule.holiday && besokSchedule.ot.total === 0) {
             return {
                 type: "LIBUR_BESOK",
-                label: "Reminder Besok:",
-                subLabel1: `${besokDayName}, ${besokTanggal} ${Helper.getMonthName(besokBulan)}`,
-                subLabel2: "Status: Hari Libur (Istirahat)"
+                label: "Reminder Berikutnya:",
+                subLabel1: `${besokDayName}, ${besokTanggal} ${Helper.getMonthName(besokBulan)} ${besokTahun}`,
+                subLabel2: "Status: LIBUR (Istirahat)"
             };
         }
 
@@ -378,10 +363,21 @@ const Dashboard = {
             type: "KERJA_BESOK",
             timeStr: besokSchedule.jamMasuk,
             label: "Reminder Besok:",
-            subLabel1: `${besokDayName}, ${besokTanggal} ${Helper.getMonthName(besokBulan)}`,
+            subLabel1: `${besokDayName}, ${besokTanggal} ${Helper.getMonthName(besokBulan)} ${besokTahun}`,
             subLabel2: `Jam Masuk: ${besokSchedule.jamMasuk}`,
             targetDate: besok
         };
+    },
+    // FUNGSI BARU: Mengirim Notifikasi ke Sistem HP Android WebView
+    showSystemNotification(title, message) {
+        if ("Notification" in window && Notification.permission === "granted") {
+            new Notification(title, {
+                body: message,
+                icon: "assets/default-profile.png"
+            });
+        } else {
+            console.log(`[TRIGGER REMINDER FALLBACK]: ${title} - ${message}`);
+        }
     },
     updateCountdownLoop() {
         const target = this.getCountdownTarget();
@@ -393,15 +389,16 @@ const Dashboard = {
         }
 
         if (target.type === "LIBUR_BESOK") {
-            if (EL.reminderText) EL.reminderText.innerHTML = `${target.label} <strong>${target.subLabel1}</strong> (${target.subLabel2})`;
+            if (EL.reminderText) EL.reminderText.innerHTML = `${target.label}<br><strong>${target.subLabel1}</strong><br><small>${target.subLabel2}</small>`;
             if (EL.countdown) EL.countdown.textContent = "LIBUR";
+            this.stopCountdown(); 
             return;
         }
 
         if (target.type === "KERJA_BESOK") {
-            if (EL.reminderText) EL.reminderText.innerHTML = `${target.label} <strong>${target.subLabel1}</strong> - ${target.subLabel2}`;
+            if (EL.reminderText) EL.reminderText.innerHTML = `${target.label}<br><strong>${target.subLabel1}</strong><br><small>${target.subLabel2}</small>`;
         } else {
-            if (EL.reminderText) EL.reminderText.textContent = `Reminder Hari Ini: ${target.label}`;
+            if (EL.reminderText) EL.reminderText.textContent = target.label;
         }
 
         const now = new Date();
@@ -413,6 +410,11 @@ const Dashboard = {
 
         if (diff <= 0) {
             if (EL.countdown) EL.countdown.textContent = "00:00:00";
+            
+            // LOGIKA BARU: Tembak Notifikasi ke HP sebelum refresh halaman dilakukan
+            const infoMsg = target.type === "REMINDER_TODAY" ? "Waktunya melakukan absen kerja!" : "Persiapan untuk jadwal besok.";
+            this.showSystemNotification("Pengingat Absen!", `${target.label}. ${infoMsg}`);
+            
             this.refresh();
             return;
         }
@@ -445,7 +447,7 @@ const Dashboard = {
 };
 
 /*=========================================
-PLANNING MODULE (WITH ACCURATE CALENDAR POPUP MODE)
+PLANNING MODULE (REVERTED TO OLD RENDER + POPUP TARGET)
 =========================================*/
 const Planning = {
     monthData: [],
@@ -477,7 +479,7 @@ const Planning = {
     render() {
         this.renderList();
         this.renderCalendar(document.getElementById("calendarView"));
-        this.renderCalendar(document.getElementById("calendarViewModal"));
+        this.renderCalendar(document.getElementById("calendarViewModal")); // Merender juga ke grid dalam modal popup
         this.switchMode(this.calendarMode);
     },
     renderList() {
@@ -494,7 +496,7 @@ const Planning = {
             item.dataset.tanggal = day.tanggal;
             item.innerHTML = `
                 <div class="planning-left">
-                    <strong>${day.dayName}, ${day.tanggal} ${Helper.getMonthName(day.bulan)}</strong>
+                    <strong>${day.dayName}, ${day.tanggal}</strong>
                     <div>${day.status}</div>
                 </div>
                 <div class="planning-right">
@@ -505,6 +507,7 @@ const Planning = {
             EL.planningList.appendChild(item);
         });
     },
+    // VERSI ASLI (LAMA): Merender tanggal bulat berdampingan dengan badge total lembur
     renderCalendar(targetElement) {
         if (!targetElement) return;
         targetElement.innerHTML = "";
@@ -526,8 +529,6 @@ const Planning = {
                 cell.classList.add("today");
             }
             cell.dataset.tanggal = day.tanggal;
-            
-            // Format render lama: Angka tanggal & badge total jam lembur selalu dicetak bersamaan
             cell.innerHTML = `
                 <div class="calendar-date">${day.tanggal}</div>
                 <div class="calendar-total">${day.ot.total} Jam</div>
@@ -540,17 +541,12 @@ const Planning = {
         const boxWrapper = document.getElementById("calendarBoxWrapper");
         
         if (calendar) {
-            EL.btnSwitchCalendar?.classList.add("active");
-            EL.btnSwitchList?.classList.remove("active");
             if (EL.calendarHeaderWrapper) EL.calendarHeaderWrapper.style.setProperty("display", "grid", "important");
             if (boxWrapper) boxWrapper.style.setProperty("display", "block", "important");
             if (EL.planningList) EL.planningList.style.setProperty("display", "none", "important");
         } else {
-            EL.btnSwitchCalendar?.classList.remove("active");
-            EL.btnSwitchList?.classList.add("active");
             if (EL.calendarHeaderWrapper) EL.calendarHeaderWrapper.style.setProperty("display", "none", "important");
-            if (boxWrapper) boxWrapper.style.setProperty("none", "none", "important");
-            if (boxWrapper) boxWrapper.style.display = "none";
+            if (boxWrapper) boxWrapper.style.setProperty("display", "none", "important");
             if (EL.planningList) EL.planningList.style.setProperty("display", "flex", "important");
         }
     },
@@ -558,24 +554,28 @@ const Planning = {
         this.refreshData();
     },
     bind() {
-        // Switch Buttons
-        document.getElementById("btnSwitchCalendar")?.addEventListener("click", () => this.switchMode(true));
-        document.getElementById("btnSwitchList")?.addEventListener("click", () => this.switchMode(false));
+        EL.calendarMode?.replaceWith(EL.calendarMode.cloneNode(true));
+        EL.calendarMode = $("calendarMode");
+        EL.calendarMode?.addEventListener("click", () => this.switchMode(true));
 
-        // Modal Action Trigger
+        EL.listMode?.replaceWith(EL.listMode.cloneNode(true));
+        EL.listMode = $("listMode");
+        EL.listMode?.addEventListener("click", () => this.switchMode(false));
+
+        // Event trigger buka dan tutup modal popup zoom kalender
         const modal = document.getElementById("calendarModal");
         document.getElementById("btnExpandCalendar")?.addEventListener("click", () => {
-            if(modal) modal.classList.add("open");
+            if (modal) modal.classList.add("open");
         });
         document.getElementById("btnCloseCalendarModal")?.addEventListener("click", () => {
-            if(modal) modal.classList.remove("open");
+            if (modal) modal.classList.remove("open");
         });
 
-        // Click on normal grid & modal grid
+        // Handler klik tanggal untuk kalender biasa dan kalender popup modal
         const handlerClick = e => {
             const cell = e.target.closest(".calendar-day");
             if (cell) {
-                if(modal) modal.classList.remove("open");
+                if (modal) modal.classList.remove("open"); // Tutup otomatis jika sedang membuka modal
                 EditOT.fill(Number(cell.dataset.tanggal), this.currentMonth, this.currentYear);
                 Navigation.open("editPage");
             }
@@ -583,8 +583,10 @@ const Planning = {
 
         document.getElementById("calendarView")?.addEventListener("click", handlerClick);
         document.getElementById("calendarViewModal")?.addEventListener("click", handlerClick);
-        
-        document.getElementById("planningList")?.addEventListener("click", e => {
+
+        EL.planningList?.replaceWith(EL.planningList.cloneNode(true));
+        EL.planningList = $("planningList");
+        EL.planningList?.addEventListener("click", e => {
             const item = e.target.closest(".planning-item");
             if (item) {
                 EditOT.fill(Number(item.dataset.tanggal), this.currentMonth, this.currentYear);
@@ -593,6 +595,7 @@ const Planning = {
         });
     }
 };
+
 /*=========================================
 EDIT OT MODULE
 =========================================*/
@@ -630,12 +633,34 @@ const EditOT = {
             this.data.jadwal.push(item);
         }
 
+        const schedule = Engine.getWorkSchedule(item.tanggal, this.currentBulan, this.currentTahun, item.ot);
+
         if (EL.editTanggal) {
             EL.editTanggal.value = `${this.currentTahun}-${Helper.pad(this.currentBulan)}-${Helper.pad(item.tanggal)}`;
         }
 
-        if (EL.editOT) {
-            EL.editOT.value = item.ot;
+        if (schedule.holiday) {
+            if (EL.otPagi) {
+                EL.otPagi.value = 0;
+                EL.otPagi.disabled = true;
+            }
+            if (EL.otSore) {
+                EL.otSore.value = schedule.ot.total; 
+                EL.otSore.disabled = false;
+            }
+            if (EL.labelOtPagi) EL.labelOtPagi.textContent = "OT Pagi (Hari Libur Otomatis 0)";
+            if (EL.labelOtSore) EL.labelOtSore.textContent = "Total Jam Lembur Hari Libur (Full OT)";
+        } else {
+            if (EL.otPagi) {
+                EL.otPagi.value = schedule.ot.pagi;
+                EL.otPagi.disabled = false;
+            }
+            if (EL.otSore) {
+                EL.otSore.value = schedule.ot.sore;
+                EL.otSore.disabled = false;
+            }
+            if (EL.labelOtPagi) EL.labelOtPagi.textContent = "OT Pagi";
+            if (EL.labelOtSore) EL.labelOtSore.textContent = "OT Sore";
         }
 
         this.updateLivePreview();
@@ -643,23 +668,28 @@ const EditOT = {
     updateLivePreview() {
         if (!EL.livePreviewBox) return;
 
-        const total = parseFloat(EL.editOT?.value) || 0;
-        const sim = Engine.getWorkSchedule(this.currentTanggal, this.currentBulan, this.currentTahun, total);
+        const p = parseFloat(EL.otPagi?.value) || 0;
+        const s = parseFloat(EL.otSore?.value) || 0;
+        const total = p + s;
+
+        const sim = Engine.getWorkSchedule(this.currentTanggal, this.currentBulan, this.currentTahun, total, p);
 
         if (sim.jamMasuk === "-") {
-            EL.livePreviewBox.innerHTML = `<strong>Detail Rencana:</strong><br>Hari Libur / Istirahat (Tidak ada jam kerja)`;
+            EL.livePreviewBox.innerHTML = `<strong>Simulasi Hasil:</strong> Hari Libur (Tidak Bekerja / Istirahat)`;
         } else {
-            EL.livePreviewBox.innerHTML = `<strong>Detail Rencana:</strong><br>Jam Masuk: <span style="color:#7F8CFF; font-weight:700;">${sim.jamMasuk}</span> | Jam Pulang: <span style="color:#7F8CFF; font-weight:700;">${sim.jamPulang}</span><br><small>${sim.status} (Total Lembur: ${sim.ot.total} Jam)</small>`;
+            EL.livePreviewBox.innerHTML = `<strong>Simulasi Hasil:</strong> Jam Masuk: <span style="color:blue">${sim.jamMasuk}</span> | Jam Pulang: <span style="color:green">${sim.jamPulang}</span> <br><small>(${sim.status} - Total Lembur: ${sim.ot.total} Jam)</small>`;
         }
     },
     save() {
-        const totalOT = parseFloat(EL.editOT?.value) || 0;
+        const pagi = parseFloat(EL.otPagi?.value) || 0;
+        const sore = parseFloat(EL.otSore?.value) || 0;
 
-        if (!Validator.ot(totalOT)) {
-            alert("Input nilai OT tidak valid! (Maksimal batas lembur 24 Jam)");
+        if (!Validator.ot(pagi) || !Validator.ot(sore)) {
+            alert("Input nilai OT tidak valid! (Maksimal akumulasi 24 Jam)");
             return;
         }
 
+        const totalOT = pagi + sore;
         const index = this.data.jadwal.findIndex(x => Number(x.tanggal) === this.currentTanggal);
         
         if (index !== -1) {
@@ -693,25 +723,8 @@ const EditOT = {
             this.fill(newDay, this.currentBulan, this.currentTahun);
         });
 
-        EL.btnMinOT?.replaceWith(EL.btnMinOT.cloneNode(true));
-        EL.btnMinOT = $("btnMinOT");
-        EL.btnMinOT?.addEventListener("click", () => {
-            let current = parseFloat(EL.editOT.value) || 0;
-            if (current > 0) {
-                EL.editOT.value = current - 0.5;
-                this.updateLivePreview();
-            }
-        });
-
-        EL.btnPlusOT?.replaceWith(EL.btnPlusOT.cloneNode(true));
-        EL.btnPlusOT = $("btnPlusOT");
-        EL.btnPlusOT?.addEventListener("click", () => {
-            let current = parseFloat(EL.editOT.value) || 0;
-            if (current < CONFIG.WORK.MAX_OT) {
-                EL.editOT.value = current + 0.5;
-                this.updateLivePreview();
-            }
-        });
+        EL.otPagi?.addEventListener("input", () => this.updateLivePreview());
+        EL.otSore?.addEventListener("input", () => this.updateLivePreview());
     }
 };
 
@@ -736,11 +749,11 @@ const Profile = {
     },
     fill() {
         if (!EL.profileName) return;
-        EL.profileName.value = this.data.nama === CONFIG.PROFILE.DEFAULT_NAME ? "" : this.data.nama;
+        EL.profileName.value = this.data.nama;
         EL.profileNik.value = this.data.nik;
-        EL.profileDept.value = this.data.departemen === CONFIG.PROFILE.DEFAULT_DEPARTMENT ? "" : this.data.departemen;
+        EL.profileDept.value = this.data.departemen;
         EL.profilePhone.value = this.data.phone;
-        if (EL.profilePhoto) EL.profilePhoto.src = this.data.photo || CONFIG.PROFILE.DEFAULT_PHOTO;
+        if (EL.profilePhoto) EL.profilePhoto.src = this.data.photo;
     },
     save() {
         if (!EL.profileName.value.trim()) {
@@ -780,9 +793,9 @@ const ImportData = {
     selectedFile: null,
     init() { this.bind(); },
     bind() {
-        EL.importFile?.addEventListener("change", e => { this.selectedFile = e.target.files[0]; });
+        EL.uploadJson?.addEventListener("change", e => { this.selectedFile = e.target.files[0]; });
         
-        EL.btnImport?.addEventListener("click", () => {
+        EL.importBtn?.addEventListener("click", () => {
             if (!this.selectedFile) { alert("Pilih file JSON terlebih dahulu!"); return; }
             const reader = new FileReader();
             reader.onload = ev => {
@@ -809,9 +822,9 @@ const ImportData = {
             reader.readAsText(this.selectedFile);
         });
 
-        EL.btnExport?.replaceWith(EL.btnExport.cloneNode(true));
-        EL.btnExport = $("btnExport");
-        EL.btnExport?.addEventListener("click", () => {
+        EL.exportBtn?.replaceWith(EL.exportBtn.cloneNode(true));
+        EL.exportBtn = $("exportBtn");
+        EL.exportBtn?.addEventListener("click", () => {
             const targetBulan = Number(EL.exportBulan?.value || new Date().getMonth() + 1);
             const targetTahun = Number(EL.exportTahun?.value || new Date().getFullYear());
             
@@ -832,7 +845,7 @@ const ImportData = {
             URL.revokeObjectURL(url);
         });
 
-        EL.btnClearOT?.addEventListener("click", () => {
+        EL.clearScheduleBtn?.addEventListener("click", () => {
             if (confirm("Hapus seluruh histori lembur di bulan aktif saat ini?")) {
                 const key = Storage.getScheduleKey(Planning.currentYear, Planning.currentMonth);
                 Storage.remove(key);
@@ -890,6 +903,14 @@ const App = {
             ImportData.init();
             Navigation.init();
             Dashboard.start();
+            
+            // MEMINTA IZIN NOTIFIKASI SECARA EKSPLISIT SAAT APLIKASI DIBUKA
+            if ("Notification" in window && Notification.permission !== "granted") {
+                Notification.requestPermission().then(permission => {
+                    console.log(`[PERMISSION STATUS]: Notifikasi ${permission}`);
+                });
+            }
+
             debug(`${CONFIG.APP.NAME} V${CONFIG.APP.VERSION} Initialized Successfully.`);
         } catch (error) {
             console.error("Initialization Failed:", error);
